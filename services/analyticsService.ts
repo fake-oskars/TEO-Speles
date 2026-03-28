@@ -39,7 +39,8 @@ export const trackScreenView = (screenName: string) => {
   const readableNames: Record<string, string> = {
     'menu': 'Galvenā izvēlne',
     'name-it': 'Kas tas ir',
-    'find-it': 'Atrodi'
+    'find-it': 'Atrodi',
+    'vroom': 'Brrūm'
   };
   
   pushAnalytics('skats', {
@@ -51,12 +52,13 @@ export const trackScreenView = (screenName: string) => {
 let gameStartTime: number | null = null;
 let currentGameMode: string | null = null;
 
-export const trackGameStart = (gameMode: 'name-it' | 'find-it', difficulty?: string, itemCount?: number) => {
+export const trackGameStart = (gameMode: 'name-it' | 'find-it' | 'vroom', difficulty?: string, itemCount?: number) => {
   gameStartTime = Date.now();
   currentGameMode = gameMode;
-  
+
   // Translate to Latvian game names
-  const gameName = gameMode === 'name-it' ? 'Kas tas ir' : 'Atrodi';
+  const gameNames: Record<string, string> = { 'name-it': 'Kas tas ir', 'find-it': 'Atrodi', 'vroom': 'Brrūm' };
+  const gameName = gameNames[gameMode] || gameMode;
   const difficultyMap: Record<string, string> = {
     'easy': 'Viegli',
     'medium': 'Vidēji',
@@ -76,8 +78,9 @@ export const trackGameEnd = (stats?: { correct: number; total: number }) => {
   
   const sessionDuration = Math.round((Date.now() - gameStartTime) / 1000); // in seconds
   const accuracy = stats && stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-  const gameName = currentGameMode === 'name-it' ? 'Kas tas ir' : 'Atrodi';
-  
+  const gameNames: Record<string, string> = { 'name-it': 'Kas tas ir', 'find-it': 'Atrodi', 'vroom': 'Brrūm' };
+  const gameName = gameNames[currentGameMode] || currentGameMode;
+
   pushAnalytics('beigas', {
     spele: gameName,
     ilgums_sek: sessionDuration,

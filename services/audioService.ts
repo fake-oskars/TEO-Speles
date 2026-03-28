@@ -153,6 +153,60 @@ export const playIncorrectSound = (): void => {
   oscillator.stop(context.currentTime + duration);
 };
 
+export const playEngineRev = (): void => {
+  const context = getAudioContext();
+  if (!context) return;
+  if (context.state === 'suspended') context.resume();
+
+  const oscillator = context.createOscillator();
+  const gainNode = context.createGain();
+  oscillator.type = 'sawtooth';
+  oscillator.frequency.setValueAtTime(80, context.currentTime);
+  oscillator.frequency.exponentialRampToValueAtTime(250, context.currentTime + 0.4);
+  gainNode.gain.setValueAtTime(0.3, context.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.5);
+  oscillator.connect(gainNode);
+  gainNode.connect(context.destination);
+  oscillator.start();
+  oscillator.stop(context.currentTime + 0.5);
+};
+
+export const playLaunchWhoosh = (): void => {
+  const context = getAudioContext();
+  if (!context) return;
+  if (context.state === 'suspended') context.resume();
+
+  const oscillator = context.createOscillator();
+  const gainNode = context.createGain();
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(200, context.currentTime);
+  oscillator.frequency.exponentialRampToValueAtTime(600, context.currentTime + 0.3);
+  gainNode.gain.setValueAtTime(0.4, context.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.3);
+  oscillator.connect(gainNode);
+  gainNode.connect(context.destination);
+  oscillator.start();
+  oscillator.stop(context.currentTime + 0.3);
+};
+
+export const playBounce = (): void => {
+  const context = getAudioContext();
+  if (!context) return;
+  if (context.state === 'suspended') context.resume();
+
+  const oscillator = context.createOscillator();
+  const gainNode = context.createGain();
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(150, context.currentTime);
+  oscillator.frequency.exponentialRampToValueAtTime(60, context.currentTime + 0.15);
+  gainNode.gain.setValueAtTime(0.5, context.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.15);
+  oscillator.connect(gainNode);
+  gainNode.connect(context.destination);
+  oscillator.start();
+  oscillator.stop(context.currentTime + 0.15);
+};
+
 export const playTransitionSound = (): void => {
     const context = getAudioContext();
     if (!context) return;

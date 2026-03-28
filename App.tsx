@@ -22,6 +22,7 @@ import {
   trackAppInit
 } from './services/analyticsService';
 import type { Item } from './types';
+import VroomGame from './VroomGame';
 
 // --- Helper Functions ---
 const shuffleArray = (array: any[]) => {
@@ -388,7 +389,7 @@ const FindItGame: React.FC<{ activeItems: Item[]; t: (key: string) => string; on
 
 
 // Game Selection Screen
-const GameSelection: React.FC<{ onSelect: (mode: 'name-it' | 'find-it') => void; t: (key: string) => string; }> = ({ onSelect, t }) => {
+const GameSelection: React.FC<{ onSelect: (mode: 'name-it' | 'find-it' | 'vroom') => void; t: (key: string) => string; }> = ({ onSelect, t }) => {
   const [currentEmoji, setCurrentEmoji] = useState(0);
   const emojis = ['🐄', '🍎', '🚗', '🎈', '🌟'];
   
@@ -399,17 +400,17 @@ const GameSelection: React.FC<{ onSelect: (mode: 'name-it' | 'find-it') => void;
     return () => clearInterval(interval);
   }, [emojis.length]);
 
-  const handleSelection = (mode: 'name-it' | 'find-it') => {
+  const handleSelection = (mode: 'name-it' | 'find-it' | 'vroom') => {
     playTransitionSound();
     setTimeout(() => onSelect(mode), 150);
   };
   
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-4 select-none" style={{ backgroundColor: '#FCF7E1' }}>
-      {/* Clean Title */}
-      <div className="text-center mb-8">
-        <h1 
-          className="text-4xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent"
+    <div className="w-full h-full flex flex-col items-center justify-center p-3 sm:p-4 select-none overflow-hidden" style={{ backgroundColor: '#FCF7E1' }}>
+      {/* Title */}
+      <div className="text-center mb-3 sm:mb-6 shrink-0">
+        <h1
+          className="text-3xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent"
           style={{ backgroundImage: 'linear-gradient(to right, #FF6F00, #FF0090)' }}
         >
           {t('selectGame')}
@@ -417,90 +418,114 @@ const GameSelection: React.FC<{ onSelect: (mode: 'name-it' | 'find-it') => void;
       </div>
 
       {/* Game Cards */}
-      <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 w-full max-w-4xl flex-1 max-h-[70vh]">
-        
-        {/* Name It! Game Card - Changing Emojis */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 w-full max-w-5xl flex-1 min-h-0">
+
+        {/* Name It! */}
         <button
           onClick={() => handleSelection('name-it')}
-          className="group flex-1 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-3xl p-8 sm:p-10 transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-xl flex flex-col items-center justify-center min-h-[200px] sm:min-h-[250px]"
+          className="group flex-1 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl sm:rounded-3xl p-4 sm:p-8 transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-xl flex flex-row sm:flex-col items-center justify-center sm:justify-center gap-4 sm:gap-0 min-h-0"
         >
-          {/* Animated Emoji Container */}
-          <div className="w-28 h-28 sm:w-32 sm:h-32 mx-auto mb-6 sm:mb-8 flex items-center justify-center relative">
-            <span 
-              className="text-7xl sm:text-8xl transition-all duration-500 transform" 
+          <div className="w-16 h-16 sm:w-28 sm:h-28 flex items-center justify-center relative shrink-0 sm:mb-4">
+            <span
+              className="text-5xl sm:text-7xl transition-all duration-500 transform"
               key={currentEmoji}
-              style={{
-                animation: 'fadeInScale 0.5s ease-in-out'
-              }}
+              style={{ animation: 'fadeInScale 0.5s ease-in-out' }}
             >
               {emojis[currentEmoji]}
             </span>
           </div>
-          
-          {/* Title */}
-          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center">
+          <h2 className="text-xl sm:text-3xl font-bold text-white text-center">
             {t('popItGameTitle')}
           </h2>
         </button>
 
-        {/* Find It! Game Card - Train with Magnifying Glass */}
+        {/* Find It! */}
         <button
           onClick={() => handleSelection('find-it')}
-          className="group flex-1 bg-gradient-to-br from-orange-500 to-pink-500 rounded-3xl p-8 sm:p-10 transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-4 focus:ring-orange-300 shadow-xl flex flex-col items-center justify-center min-h-[200px] sm:min-h-[250px]"
+          className="group flex-1 bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl sm:rounded-3xl p-4 sm:p-8 transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-4 focus:ring-orange-300 shadow-xl flex flex-row sm:flex-col items-center justify-center sm:justify-center gap-4 sm:gap-0 min-h-0"
         >
-          {/* Animated Icon Container */}
-          <div className="w-28 h-28 sm:w-32 sm:h-32 mx-auto mb-6 sm:mb-8 flex items-center justify-center relative">
-            {/* Train Emoji */}
-            <span className="text-7xl sm:text-8xl">🚂</span>
-            
-            {/* Animated Magnifying Glass */}
+          <div className="w-16 h-16 sm:w-28 sm:h-28 flex items-center justify-center relative shrink-0 sm:mb-4">
+            <span className="text-5xl sm:text-7xl">🚂</span>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative w-28 h-28 sm:w-32 sm:h-32">
-                <span 
-                  className="absolute text-4xl sm:text-5xl orbit-animation top-1/2 left-1/2"
-                  style={{
-                    transformOrigin: '-32px 0px',
-                    marginTop: '-24px',
-                    marginLeft: '-24px'
-                  }}
+              <div className="relative w-16 h-16 sm:w-28 sm:h-28">
+                <span
+                  className="absolute text-2xl sm:text-4xl orbit-animation top-1/2 left-1/2"
+                  style={{ transformOrigin: '-20px 0px', marginTop: '-14px', marginLeft: '-14px' }}
                 >
                   🔍
                 </span>
               </div>
             </div>
           </div>
-          
-          {/* Title */}
-          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center">
+          <h2 className="text-xl sm:text-3xl font-bold text-white text-center">
             {t('findItGameTitle')}
           </h2>
         </button>
+
+        {/* Vroom! — clean ramp jump icon */}
+        <button
+          onClick={() => handleSelection('vroom')}
+          className="group flex-1 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl sm:rounded-3xl p-4 sm:p-8 transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-4 focus:ring-green-300 shadow-xl flex flex-row sm:flex-col items-center justify-center sm:justify-center gap-4 sm:gap-0 min-h-0 relative overflow-hidden"
+        >
+          <div className="w-20 h-16 sm:w-32 sm:h-28 relative shrink-0 sm:mb-4 flex items-center justify-center">
+            {/* Clean ramp + car icon */}
+            <svg className="w-full h-full" viewBox="0 0 100 70" fill="none">
+              {/* Ramp track - smooth curve */}
+              <path d="M8 12 C8 52, 20 58, 38 58 C50 58, 56 56, 62 48 C68 40, 72 28, 74 18" stroke="white" strokeWidth="4" strokeLinecap="round" opacity="0.8"/>
+              {/* Target blocks */}
+              <rect x="82" y="48" width="8" height="8" rx="1" fill="white" opacity="0.5"/>
+              <rect x="82" y="39" width="8" height="8" rx="1" fill="white" opacity="0.4"/>
+              <rect x="74" y="48" width="8" height="8" rx="1" fill="white" opacity="0.4"/>
+              {/* Dotted arc path showing trajectory */}
+              <path d="M76 16 Q82 2, 88 16 Q92 30, 86 44" stroke="white" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.4"/>
+            </svg>
+            {/* Animated car */}
+            <span className="text-3xl sm:text-5xl vroom-jump-car absolute z-10">🏎️</span>
+          </div>
+          <h2 className="text-xl sm:text-3xl font-bold text-white text-center relative z-10">
+            {t('vroomGameTitle')}
+          </h2>
+        </button>
       </div>
-      
-      {/* Custom Animations */}
+
+      {/* Animations */}
       <style jsx>{`
+        /* Car follows ramp shape then arc trajectory — matches SVG path */
+        /* SVG ramp: starts top-left (8,12), curves down to (38,58), curves up to (74,18) */
+        /* SVG arc:  (76,16) → peak (88,2) → down to (86,44) hitting blocks */
+        @keyframes jumpArc {
+          /* On ramp — rolling down the curve */
+          0%   { left: 2%;  bottom: 78%; transform: scaleX(-1) rotate(-40deg); opacity: 1; }
+          10%  { left: 8%;  bottom: 50%; transform: scaleX(-1) rotate(-20deg); }
+          20%  { left: 20%; bottom: 22%; transform: scaleX(-1) rotate(-5deg); }
+          30%  { left: 32%; bottom: 14%; transform: scaleX(-1) rotate(5deg); }
+          /* Up the ramp lip */
+          40%  { left: 48%; bottom: 25%; transform: scaleX(-1) rotate(-20deg); }
+          48%  { left: 58%; bottom: 52%; transform: scaleX(-1) rotate(-30deg); }
+          /* Launch! Flying through the arc */
+          58%  { left: 68%; bottom: 72%; transform: scaleX(-1) rotate(-10deg); }
+          70%  { left: 76%; bottom: 65%; transform: scaleX(-1) rotate(10deg); }
+          82%  { left: 80%; bottom: 38%; transform: scaleX(-1) rotate(25deg); }
+          /* Hit blocks */
+          90%  { left: 82%; bottom: 22%; transform: scaleX(-1) rotate(10deg); opacity: 0.7; }
+          95%  { opacity: 0; left: 82%; bottom: 22%; }
+          100% { left: 2%;  bottom: 78%; transform: scaleX(-1) rotate(-40deg); opacity: 1; }
+        }
+        .vroom-jump-car { animation: jumpArc 3.5s ease-in-out infinite; }
         @keyframes orbit {
-          0% {
-            transform: rotate(0deg) translateX(48px) rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg) translateX(48px) rotate(-360deg);
-          }
+          0% { transform: rotate(0deg) translateX(32px) rotate(0deg); }
+          100% { transform: rotate(360deg) translateX(32px) rotate(-360deg); }
         }
-        
         @keyframes fadeInScale {
-          0% {
-            opacity: 0;
-            transform: scale(0.8);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
+          0% { opacity: 0; transform: scale(0.8); }
+          100% { opacity: 1; transform: scale(1); }
         }
-        
-        .orbit-animation {
-          animation: orbit 5s linear infinite;
+        .orbit-animation { animation: orbit 5s linear infinite; }
+        @media (min-width: 640px) {
+          @keyframes orbit {
+            0% { transform: rotate(0deg) translateX(48px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(48px) rotate(-360deg); }
+          }
         }
       `}</style>
     </div>
@@ -510,7 +535,7 @@ const GameSelection: React.FC<{ onSelect: (mode: 'name-it' | 'find-it') => void;
 
 // Main App Component
 const App: React.FC = () => {
-  const [gameMode, setGameMode] = useState<'name-it' | 'find-it' | null>(null);
+  const [gameMode, setGameMode] = useState<'name-it' | 'find-it' | 'vroom' | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [gameStats, setGameStats] = useState<{correct: number; total: number} | null>(null);
 
@@ -569,7 +594,7 @@ const App: React.FC = () => {
     }
   }, [difficulty]);
   
-  const handleSelectGame = (mode: 'name-it' | 'find-it') => {
+  const handleSelectGame = (mode: 'name-it' | 'find-it' | 'vroom') => {
     setGameMode(mode);
     trackScreenView(mode);
     if (mode === 'find-it') {
@@ -608,6 +633,10 @@ const App: React.FC = () => {
     if (gameMode === 'find-it') {
       return <FindItGame activeItems={activeItems} t={t} onBack={handleGoBack} difficulty={difficulty} emojiCount={emojiCount} onGameEnd={handleGameEnd} />;
     }
+
+    if (gameMode === 'vroom') {
+      return <VroomGame t={t} onBack={handleGoBack} difficulty={difficulty} />;
+    }
   };
 
 
@@ -615,8 +644,8 @@ const App: React.FC = () => {
     <>
       {renderContent()}
 
-      {/* Settings Button */}
-      <button
+      {/* Settings Button - hidden in vroom game (has its own controls) */}
+      {gameMode !== 'vroom' && <button
         onClick={(e) => {
           e.stopPropagation();
           if (!isMenuOpen) {
@@ -626,15 +655,15 @@ const App: React.FC = () => {
           }
           setIsMenuOpen(!isMenuOpen);
         }}
-        className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center text-3xl z-40 bg-white/30 rounded-full hover:bg-white/50 transition-transform duration-200 active:scale-90"
+        className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center text-3xl z-50 bg-white/30 rounded-full hover:bg-white/50 transition-transform duration-200 active:scale-90"
         aria-label="Open settings"
       >
         ⚙️
-      </button>
+      </button>}
 
       {/* Settings Menu Popover */}
-      <div
-        className={`absolute inset-0 z-30 transition-opacity duration-300 ${
+      {gameMode !== 'vroom' && <div
+        className={`absolute inset-0 z-50 transition-opacity duration-300 ${
           isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => {
@@ -735,7 +764,7 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>}
     </>
   );
 };
