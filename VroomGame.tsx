@@ -118,7 +118,7 @@ function createTargets(centerX: number): Block[] {
   };
   const Y = GROUND_Y;
   const x = centerX;
-  const p = patternIdx++ % 6;
+  const p = patternIdx++ % 7;
 
   if (p === 0) {
     // 🏠 HOUSE
@@ -177,7 +177,7 @@ function createTargets(centerX: number): Block[] {
     b(x, Y + 1.78, 0.24, 0.08, 0.06, 0.06, C.red);        // mouth
     b(x, Y + 2.15, 0, 0.06, 0.2, 0.06, C.rose);           // antenna
     b(x, Y + 2.3, 0, 0.12, 0.12, 0.12, C.red);            // antenna ball
-  } else {
+  } else if (p === 5) {
     // 🏰 CASTLE
     // Base wall
     b(x, Y + 0.4, 0, 1.6, 0.7, 0.8, C.amber);
@@ -203,6 +203,34 @@ function createTargets(centerX: number): Block[] {
     // Flag
     b(x, Y + 2.3, 0, 0.06, 0.25, 0.06, C.brown);
     b(x + 0.08, Y + 2.4, 0, 0.12, 0.1, 0.04, C.blue);
+  } else {
+    // 🚀 ROCKET — clean, simple, like stacked wooden blocks
+    const g = Y;
+    const W = 0.7; // body width — consistent throughout
+
+    // Fins — wide flat pieces at base
+    b(x - 0.5, g + 0.25, 0, 0.4, 0.5, 0.15, C.red);
+    b(x + 0.5, g + 0.25, 0, 0.4, 0.5, 0.15, C.red);
+
+    // Body — 4 identical white blocks stacked perfectly
+    b(x, g + 0.35, 0, W, 0.6, W, C.white);
+    b(x, g + 0.95, 0, W, 0.6, W, C.white);
+    // Red band
+    b(x, g + 1.28, 0, W + 0.02, 0.08, W + 0.02, C.red);
+    b(x, g + 1.55, 0, W, 0.6, W, C.white);
+    b(x, g + 2.15, 0, W, 0.6, W, C.white);
+
+    // Window — on the front face
+    b(x, g + 1.55, W / 2 + 0.01, 0.25, 0.25, 0.04, C.sky);
+
+    // Nose — 3 blocks getting smaller
+    b(x, g + 2.55, 0, 0.55, 0.25, 0.55, C.red);
+    b(x, g + 2.78, 0, 0.35, 0.25, 0.35, C.scarlet);
+    b(x, g + 2.98, 0, 0.15, 0.2, 0.15, C.scarlet);
+
+    // Flame under rocket
+    b(x, g + 0.04, 0, 0.25, 0.08, 0.25, C.yellow);
+    b(x, g + -0.02, 0, 0.15, 0.06, 0.15, C.orange);
   }
   return blocks;
 }
