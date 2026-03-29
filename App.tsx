@@ -106,31 +106,25 @@ const NameItGame: React.FC<{ activeItems: Item[]; t: (key: string) => string; on
       <div className="absolute top-4 left-4 z-20">
         <BackButton onClick={onBack} />
       </div>
-      <div className="relative flex flex-col items-center flex-grow justify-center">
+      <div className="relative flex flex-col items-center flex-grow justify-center px-4 overflow-hidden">
         <div
           className={`transition-transform duration-300 ease-in-out ${
             isPopping ? 'scale-110' : 'scale-100'
           }`}
-          style={{
-            fontSize: `${Math.max(180, Math.min(400, Math.min(window.innerWidth, window.innerHeight) * 0.4))}px`
-          }}
+          style={{ fontSize: 'clamp(100px, 35vmin, 400px)', lineHeight: 1 }}
         >
           {emoji}
         </div>
         <div
-          className={`font-bold mt-4 transition-opacity duration-300 ${textColor} opacity-100`}
-          style={{
-            fontSize: `${Math.max(48, Math.min(120, Math.min(window.innerWidth, window.innerHeight) * 0.12))}px`
-          }}
+          className={`font-bold mt-2 sm:mt-4 transition-opacity duration-300 ${textColor} opacity-100 text-center w-full`}
+          style={{ fontSize: 'clamp(28px, 10vmin, 120px)' }}
         >
           {t(name)}
         </div>
         {pronunciations[language]?.[name] && (
           <div
-            className={`mt-1 transition-opacity duration-300 ${textColor} opacity-60 italic`}
-            style={{
-              fontSize: `${Math.max(20, Math.min(48, Math.min(window.innerWidth, window.innerHeight) * 0.05))}px`
-            }}
+            className={`mt-0.5 sm:mt-1 transition-opacity duration-300 ${textColor} opacity-50 italic text-center`}
+            style={{ fontSize: 'clamp(14px, 4vmin, 48px)' }}
           >
             [{pronunciations[language][name]}]
           </div>
