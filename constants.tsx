@@ -608,8 +608,8 @@ export const pronunciations: Record<string, Record<string, string>> = {
 };
 
 export const availableLanguages = [
-  { code: 'en', flag: '🇬🇧', name: 'English' },
   { code: 'lv', flag: '🇱🇻', name: 'Latviešu' },
+  { code: 'en', flag: '🇬🇧', name: 'English' },
   { code: 'lt', flag: '🇱🇹', name: 'Lietuvių' },
   { code: 'et', flag: '🇪🇪', name: 'Eesti' },
   { code: 'es', flag: '🇪🇸', name: 'Español' },

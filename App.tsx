@@ -414,17 +414,16 @@ const GameSelection: React.FC<{ onSelect: (mode: 'name-it' | 'find-it' | 'vroom'
 
       {/* Header: language flags + title */}
       <div className="w-full flex flex-col items-center shrink-0 pt-3 sm:pt-4 mb-3 sm:mb-6 px-4">
-        {/* Language flags with names */}
-        <div className="flex flex-wrap justify-center gap-1 sm:gap-1.5 mb-2 sm:mb-3">
+        {/* Language selector — single row, no wrap */}
+        <div className="flex justify-center gap-2 sm:gap-3 mb-2 sm:mb-3">
           {availableLanguages.map(({ code, flag, name }) => (
             <button key={code}
               onClick={() => { onLanguageChange(code); playUIClick(); }}
-              className={`transition-all rounded-full px-2 sm:px-3 py-1 flex items-center gap-1 sm:gap-1.5 ${
-                language === code ? 'bg-white/30 scale-105 ring-2 ring-white/60' : 'opacity-50 hover:opacity-80'
-              }`}
+              className={`transition-all rounded-lg flex flex-col items-center px-1 py-0.5 sm:px-2 sm:py-1
+                ${language === code ? 'bg-white/30 scale-105 ring-2 ring-white/60' : 'opacity-40 hover:opacity-80'}`}
             >
-              <span className="text-lg sm:text-xl">{flag}</span>
-              <span className="text-[10px] sm:text-xs font-bold text-white">{name}</span>
+              <span className="text-base sm:text-xl leading-none">{flag}</span>
+              <span className="text-[7px] sm:text-[10px] font-bold text-white leading-tight mt-0.5">{name}</span>
             </button>
           ))}
         </div>
