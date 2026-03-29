@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { ALL_ITEMS, translations, availableLanguages } from './constants';
+import { ALL_ITEMS, translations, availableLanguages, pronunciations } from './constants';
 import { 
   playSound, 
   initializeAudio, 
@@ -60,7 +60,7 @@ const SimpleStats: React.FC<{ correct: number; total: number; t: (key: string) =
 };
 
 // Game 1: Name It! (previously PopItGame)
-const NameItGame: React.FC<{ activeItems: Item[]; t: (key: string) => string; onBack: () => void; }> = ({ activeItems, t, onBack }) => {
+const NameItGame: React.FC<{ activeItems: Item[]; t: (key: string) => string; onBack: () => void; language: string }> = ({ activeItems, t, onBack, language }) => {
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [isPopping, setIsPopping] = useState(false);
 
@@ -125,6 +125,16 @@ const NameItGame: React.FC<{ activeItems: Item[]; t: (key: string) => string; on
         >
           {t(name)}
         </div>
+        {pronunciations[language]?.[name] && (
+          <div
+            className={`mt-1 transition-opacity duration-300 ${textColor} opacity-60 italic`}
+            style={{
+              fontSize: `${Math.max(20, Math.min(48, Math.min(window.innerWidth, window.innerHeight) * 0.05))}px`
+            }}
+          >
+            [{pronunciations[language][name]}]
+          </div>
+        )}
       </div>
     </div>
   );
@@ -625,7 +635,7 @@ const App: React.FC = () => {
     }
 
     if (gameMode === 'name-it') {
-      return <NameItGame activeItems={activeItems} t={t} onBack={handleGoBack} />;
+      return <NameItGame activeItems={activeItems} t={t} onBack={handleGoBack} language={language} />;
     }
 
     if (gameMode === 'find-it') {
