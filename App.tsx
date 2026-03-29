@@ -389,7 +389,7 @@ const FindItGame: React.FC<{ activeItems: Item[]; t: (key: string) => string; on
 
 
 // Game Selection Screen
-const GameSelection: React.FC<{ onSelect: (mode: 'name-it' | 'find-it' | 'vroom') => void; t: (key: string) => string; }> = ({ onSelect, t }) => {
+const GameSelection: React.FC<{ onSelect: (mode: 'name-it' | 'find-it' | 'vroom') => void; t: (key: string) => string; language: string; onLanguageChange: (lang: string) => void }> = ({ onSelect, t, language, onLanguageChange }) => {
   const [currentEmoji, setCurrentEmoji] = useState(0);
   const emojis = ['🐄', '🍎', '🚗', '🎈', '🌟'];
   
@@ -406,85 +406,83 @@ const GameSelection: React.FC<{ onSelect: (mode: 'name-it' | 'find-it' | 'vroom'
   };
   
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-3 sm:p-4 select-none overflow-hidden" style={{ backgroundColor: '#FCF7E1' }}>
-      {/* Title */}
-      <div className="text-center mb-3 sm:mb-6 shrink-0">
-        <h1
-          className="text-3xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent"
-          style={{ backgroundImage: 'linear-gradient(to right, #FF6F00, #FF0090)' }}
-        >
+    <div className="w-full h-full flex flex-col items-center justify-center select-none overflow-hidden" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)' }}>
+
+      {/* Header: language flags + title */}
+      <div className="w-full flex flex-col items-center shrink-0 pt-3 sm:pt-4 mb-3 sm:mb-6 px-4">
+        {/* Language flags with names */}
+        <div className="flex flex-wrap justify-center gap-1 sm:gap-1.5 mb-2 sm:mb-3">
+          {availableLanguages.map(({ code, flag, name }) => (
+            <button key={code}
+              onClick={() => { onLanguageChange(code); playUIClick(); }}
+              className={`transition-all rounded-full px-2 sm:px-3 py-1 flex items-center gap-1 sm:gap-1.5 ${
+                language === code ? 'bg-white/30 scale-105 ring-2 ring-white/60' : 'opacity-50 hover:opacity-80'
+              }`}
+            >
+              <span className="text-lg sm:text-xl">{flag}</span>
+              <span className="text-[10px] sm:text-xs font-bold text-white">{name}</span>
+            </button>
+          ))}
+        </div>
+        {/* Title */}
+        <h1 className="text-3xl sm:text-6xl font-black text-white drop-shadow-lg tracking-tight">
           {t('selectGame')}
         </h1>
       </div>
 
       {/* Game Cards */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 w-full max-w-5xl flex-1 min-h-0">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-5 w-full max-w-5xl flex-1 min-h-0 px-4 pb-4 sm:px-6 sm:pb-6">
 
         {/* Name It! */}
         <button
           onClick={() => handleSelection('name-it')}
-          className="group flex-1 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl sm:rounded-3xl p-4 sm:p-8 transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-xl flex flex-row sm:flex-col items-center justify-center sm:justify-center gap-4 sm:gap-0 min-h-0"
+          className="group flex-1 rounded-2xl sm:rounded-3xl transition-all duration-300 hover:scale-[1.03] active:scale-95 focus:outline-none shadow-2xl flex flex-row sm:flex-col items-center justify-center gap-4 sm:gap-0 min-h-0 relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' }}
         >
-          <div className="w-16 h-16 sm:w-28 sm:h-28 flex items-center justify-center relative shrink-0 sm:mb-4">
-            <span
-              className="text-5xl sm:text-7xl transition-all duration-500 transform"
-              key={currentEmoji}
-              style={{ animation: 'fadeInScale 0.5s ease-in-out' }}
-            >
+          <div className="w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center shrink-0 sm:mb-3">
+            <span className="text-5xl sm:text-7xl transition-all duration-500" key={currentEmoji}
+              style={{ animation: 'fadeInScale 0.5s ease-in-out' }}>
               {emojis[currentEmoji]}
             </span>
           </div>
-          <h2 className="text-xl sm:text-3xl font-bold text-white text-center">
-            {t('popItGameTitle')}
-          </h2>
+          <h2 className="text-2xl sm:text-4xl font-black text-white drop-shadow-md">{t('popItGameTitle')}</h2>
         </button>
 
         {/* Find It! */}
         <button
           onClick={() => handleSelection('find-it')}
-          className="group flex-1 bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl sm:rounded-3xl p-4 sm:p-8 transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-4 focus:ring-orange-300 shadow-xl flex flex-row sm:flex-col items-center justify-center sm:justify-center gap-4 sm:gap-0 min-h-0"
+          className="group flex-1 rounded-2xl sm:rounded-3xl transition-all duration-300 hover:scale-[1.03] active:scale-95 focus:outline-none shadow-2xl flex flex-row sm:flex-col items-center justify-center gap-4 sm:gap-0 min-h-0 relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}
         >
-          <div className="w-16 h-16 sm:w-28 sm:h-28 flex items-center justify-center relative shrink-0 sm:mb-4">
+          <div className="w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center relative shrink-0 sm:mb-3">
             <span className="text-5xl sm:text-7xl">🚂</span>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative w-16 h-16 sm:w-28 sm:h-28">
-                <span
-                  className="absolute text-2xl sm:text-4xl orbit-animation top-1/2 left-1/2"
-                  style={{ transformOrigin: '-20px 0px', marginTop: '-14px', marginLeft: '-14px' }}
-                >
-                  🔍
-                </span>
+              <div className="relative w-16 h-16 sm:w-24 sm:h-24">
+                <span className="absolute text-2xl sm:text-3xl orbit-animation top-1/2 left-1/2"
+                  style={{ transformOrigin: '-18px 0px', marginTop: '-12px', marginLeft: '-12px' }}>🔍</span>
               </div>
             </div>
           </div>
-          <h2 className="text-xl sm:text-3xl font-bold text-white text-center">
-            {t('findItGameTitle')}
-          </h2>
+          <h2 className="text-2xl sm:text-4xl font-black text-white drop-shadow-md">{t('findItGameTitle')}</h2>
         </button>
 
-        {/* Vroom! — clean ramp jump icon */}
+        {/* Vroom! */}
         <button
           onClick={() => handleSelection('vroom')}
-          className="group flex-1 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl sm:rounded-3xl p-4 sm:p-8 transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-4 focus:ring-green-300 shadow-xl flex flex-row sm:flex-col items-center justify-center sm:justify-center gap-4 sm:gap-0 min-h-0 relative overflow-hidden"
+          className="group flex-1 rounded-2xl sm:rounded-3xl transition-all duration-300 hover:scale-[1.03] active:scale-95 focus:outline-none shadow-2xl flex flex-row sm:flex-col items-center justify-center gap-4 sm:gap-0 min-h-0 relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}
         >
-          <div className="w-20 h-16 sm:w-32 sm:h-28 relative shrink-0 sm:mb-4 flex items-center justify-center">
-            {/* Clean ramp + car icon */}
+          <div className="w-20 h-16 sm:w-32 sm:h-24 relative shrink-0 sm:mb-3 flex items-center justify-center">
             <svg className="w-full h-full" viewBox="0 0 100 70" fill="none">
-              {/* Ramp track - smooth curve */}
-              <path d="M8 12 C8 52, 20 58, 38 58 C50 58, 56 56, 62 48 C68 40, 72 28, 74 18" stroke="white" strokeWidth="4" strokeLinecap="round" opacity="0.8"/>
-              {/* Target blocks */}
-              <rect x="82" y="48" width="8" height="8" rx="1" fill="white" opacity="0.5"/>
-              <rect x="82" y="39" width="8" height="8" rx="1" fill="white" opacity="0.4"/>
-              <rect x="74" y="48" width="8" height="8" rx="1" fill="white" opacity="0.4"/>
-              {/* Dotted arc path showing trajectory */}
-              <path d="M76 16 Q82 2, 88 16 Q92 30, 86 44" stroke="white" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.4"/>
+              <path d="M8 12 C8 52, 20 58, 38 58 C50 58, 56 56, 62 48 C68 40, 72 28, 74 18" stroke="white" strokeWidth="3.5" strokeLinecap="round" opacity="0.7"/>
+              <rect x="82" y="48" width="7" height="7" rx="1" fill="white" opacity="0.45"/>
+              <rect x="82" y="40" width="7" height="7" rx="1" fill="white" opacity="0.35"/>
+              <rect x="75" y="48" width="7" height="7" rx="1" fill="white" opacity="0.35"/>
+              <path d="M76 16 Q82 2, 88 16 Q92 30, 86 44" stroke="white" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.35"/>
             </svg>
-            {/* Animated car */}
             <span className="text-3xl sm:text-5xl vroom-jump-car absolute z-10">🏎️</span>
           </div>
-          <h2 className="text-xl sm:text-3xl font-bold text-white text-center relative z-10">
-            {t('vroomGameTitle')}
-          </h2>
+          <h2 className="text-2xl sm:text-4xl font-black text-white drop-shadow-md">{t('vroomGameTitle')}</h2>
         </button>
       </div>
 
@@ -623,7 +621,7 @@ const App: React.FC = () => {
   
   const renderContent = () => {
     if (!gameMode) {
-      return <GameSelection onSelect={handleSelectGame} t={t} />;
+      return <GameSelection onSelect={handleSelectGame} t={t} language={language} onLanguageChange={setLanguage} />;
     }
 
     if (gameMode === 'name-it') {
@@ -645,7 +643,7 @@ const App: React.FC = () => {
       {renderContent()}
 
       {/* Settings Button - hidden in vroom game (has its own controls) */}
-      {gameMode !== 'vroom' && <button
+      {(gameMode === 'name-it' || gameMode === 'find-it') && <button
         onClick={(e) => {
           e.stopPropagation();
           if (!isMenuOpen) {
@@ -662,7 +660,7 @@ const App: React.FC = () => {
       </button>}
 
       {/* Settings Menu Popover */}
-      {gameMode !== 'vroom' && <div
+      {(gameMode === 'name-it' || gameMode === 'find-it') && <div
         className={`absolute inset-0 z-50 transition-opacity duration-300 ${
           isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
@@ -672,7 +670,7 @@ const App: React.FC = () => {
         }}
       >
         <div
-            className={`absolute top-16 right-4 w-[280px] p-4 rounded-xl shadow-2xl origin-top-right
+            className={`absolute top-16 right-4 w-[300px] max-w-[90vw] p-4 rounded-xl shadow-2xl origin-top-right
                         bg-white/40 backdrop-blur-xl border border-white/20 text-slate-800
                         transition-all duration-300 ease-in-out
                         ${isMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
@@ -735,14 +733,13 @@ const App: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">{t('difficulty')}</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="flex gap-2">
                 {(['easy', 'medium', 'hard'] as const).map((level) => (
                   <button
                     key={level}
                     onClick={() => {
                       playUIClick();
                       setDifficulty(level);
-                      // Set appropriate emoji count based on difficulty
                       if (level === 'easy') {
                         setEmojiCount(4);
                       } else if (level === 'medium') {
@@ -751,7 +748,7 @@ const App: React.FC = () => {
                         setEmojiCount(12);
                       }
                     }}
-                    className={`p-2 rounded-md text-sm font-semibold transition-colors ${
+                    className={`flex-1 py-2 px-1 rounded-md text-xs font-semibold transition-colors text-center whitespace-nowrap ${
                       difficulty === level
                         ? 'bg-sky-500 text-white shadow'
                         : 'bg-white/50 hover:bg-white/80'
