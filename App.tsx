@@ -550,10 +550,7 @@ const App: React.FC = () => {
   const [difficulty, setDifficulty] = useState<Difficulty>(() => (localStorage.getItem('toddlerPopDifficulty') as Difficulty) || 'easy');
 
   const activeItems = useMemo(() => {
-    // Always provide a large pool of emojis for variety, but games will use only what they need
-    const minPoolSize = Math.max(emojiCount, 20); // Always have at least 20 emojis for variety
-    const maxPoolSize = Math.min(ALL_ITEMS.length, minPoolSize + 10); // Add extra 10 for more variety
-    return shuffleArray(ALL_ITEMS).slice(0, maxPoolSize);
+    return shuffleArray(ALL_ITEMS).slice(0, emojiCount);
   }, [emojiCount]);
 
   useEffect(() => {
@@ -657,10 +654,11 @@ const App: React.FC = () => {
           }
           setIsMenuOpen(!isMenuOpen);
         }}
-        className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center text-3xl z-50 bg-white/30 rounded-full hover:bg-white/50 transition-transform duration-200 active:scale-90"
+        className="absolute top-4 right-4 flex items-center gap-1.5 px-4 py-2.5 z-50 bg-white/90 rounded-full shadow-lg border-2 border-white hover:bg-white transition-transform duration-200 active:scale-90"
         aria-label="Open settings"
       >
-        ⚙️
+        <span className="text-xl">⚙️</span>
+        <span className="text-sm font-bold text-gray-700">{t('Settings')}</span>
       </button>}
 
       {/* Settings Menu Popover */}
@@ -773,10 +771,10 @@ const App: React.FC = () => {
 const BackButton: React.FC<{onClick: () => void}> = ({onClick}) => (
     <button
         onClick={(e) => { e.stopPropagation(); onClick(); }}
-        className="w-12 h-12 flex items-center justify-center text-3xl bg-white/30 rounded-full hover:bg-white/50 transition-transform duration-200 active:scale-90"
+        className="flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 bg-white/90 rounded-full shadow-lg border-2 border-white hover:bg-white transition-transform duration-200 active:scale-90"
         aria-label="Go back"
     >
-      ⬅️
+      <span className="text-lg sm:text-xl">⬅️</span>
     </button>
 );
 

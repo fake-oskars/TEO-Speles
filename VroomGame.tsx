@@ -9,24 +9,32 @@ import { trackScreenView, trackGameStart, trackInteraction } from './services/an
 const GROUND_Y = -0.5;
 const CAR_OFFSET_Y = 0.35;
 
-// Fixed downhill section
+// Fixed downhill section — dense points for smooth ride
 const FIXED_POINTS: { x: number; y: number }[] = [
   { x: -5.5, y: 3.8 },
-  { x: -4.8, y: 3.3 },
-  { x: -4.0, y: 2.7 },
-  { x: -3.2, y: 2.2 },
-  { x: -2.4, y: 1.7 },
-  { x: -1.6, y: 1.25 },
-  { x: -0.8, y: 0.85 },
-  { x: -0.1, y: 0.5 },
-  { x: 0.5,  y: 0.28 },
-  { x: 1.0,  y: 0.15 },
+  { x: -5.1, y: 3.55 },
+  { x: -4.7, y: 3.25 },
+  { x: -4.3, y: 2.95 },
+  { x: -3.9, y: 2.65 },
+  { x: -3.5, y: 2.35 },
+  { x: -3.1, y: 2.05 },
+  { x: -2.7, y: 1.78 },
+  { x: -2.3, y: 1.52 },
+  { x: -1.9, y: 1.28 },
+  { x: -1.5, y: 1.06 },
+  { x: -1.1, y: 0.86 },
+  { x: -0.7, y: 0.68 },
+  { x: -0.3, y: 0.5 },
+  { x: 0.1,  y: 0.35 },
+  { x: 0.5,  y: 0.23 },
+  { x: 0.8,  y: 0.16 },
+  { x: 1.0,  y: 0.12 },
 ];
 
 // Generate the curve-up section based on desired end angle
 function generateTrack(endAngleDeg: number): { x: number; y: number }[] {
   const start = FIXED_POINTS[FIXED_POINTS.length - 1];
-  const curveSteps = 8;
+  const curveSteps = 12;
   const radius = 2.5;
   const startAngle = -5 * Math.PI / 180; // nearly horizontal at bottom
   const endAngle = endAngleDeg * Math.PI / 180;
@@ -92,61 +100,109 @@ interface Block {
   hit: boolean;
 }
 
-const BLOCK_COLORS = ['#92400e', '#b45309', '#78350f', '#f59e0b', '#166534', '#15803d', '#22c55e', '#1e40af', '#2563eb', '#dc2626', '#7c3aed', '#c026d3'];
+// Toy colors
+const C = {
+  red: '#dc2626', scarlet: '#ef4444', orange: '#f97316', amber: '#f59e0b', yellow: '#eab308',
+  lime: '#84cc16', green: '#16a34a', emerald: '#10b981', cyan: '#06b6d4', sky: '#0ea5e9',
+  blue: '#2563eb', indigo: '#4f46e5', purple: '#7c3aed', pink: '#ec4899', rose: '#f43f5e',
+  white: '#e2e8f0', brown: '#78350f', wood: '#a16207',
+};
+
+let patternIdx = 0;
 
 function createTargets(centerX: number): Block[] {
   const blocks: Block[] = [];
   let id = 0;
-  const col = () => BLOCK_COLORS[Math.floor(Math.random() * BLOCK_COLORS.length)];
-  const blk = (x: number, y: number, z: number, w: number, h: number, d: number): Block => ({
-    id: id++, x, y, z, w, h, d, color: col(), vx: 0, vy: 0, vz: 0, rotSpeed: 0, hit: false,
-  });
-  const gY = GROUND_Y;
-  const pattern = Math.floor(Math.random() * 5);
+  const b = (x: number, y: number, z: number, w: number, h: number, d: number, c: string) => {
+    blocks.push({ id: id++, x, y, z, w, h, d, color: c, vx: 0, vy: 0, vz: 0, rotSpeed: 0, hit: false });
+  };
+  const Y = GROUND_Y;
+  const x = centerX;
+  const p = patternIdx++ % 6;
 
-  if (pattern === 0) {
-    // Double tower
-    blocks.push(blk(centerX - 0.4, gY + 0.3, 0, 0.5, 0.5, 0.5));
-    blocks.push(blk(centerX + 0.4, gY + 0.3, 0, 0.5, 0.5, 0.5));
-    blocks.push(blk(centerX, gY + 0.75, 0, 0.5, 0.15, 1.2));
-    blocks.push(blk(centerX, gY + 1.1, 0, 0.4, 0.5, 0.4));
-    blocks.push(blk(centerX, gY + 1.6, 0, 0.3, 0.3, 0.3));
-    blocks.push(blk(centerX + 1.3, gY + 0.3, -0.3, 0.4, 0.5, 0.4));
-    blocks.push(blk(centerX + 1.3, gY + 0.3, 0.3, 0.4, 0.5, 0.4));
-    blocks.push(blk(centerX + 1.3, gY + 0.8, 0, 0.4, 0.15, 1.0));
-    blocks.push(blk(centerX + 1.3, gY + 1.15, 0, 0.35, 0.5, 0.35));
-  } else if (pattern === 1) {
-    // Pyramid
-    for (let row = 0; row < 3; row++) {
-      const count = 3 - row;
-      const sx = centerX - (count - 1) * 0.3;
-      for (let c = 0; c < count; c++) blocks.push(blk(sx + c * 0.6, gY + 0.3 + row * 0.5, 0, 0.5, 0.45, 0.6));
-    }
-    blocks.push(blk(centerX + 1.3, gY + 0.3, 0, 0.6, 0.5, 0.6));
-    blocks.push(blk(centerX + 1.3, gY + 0.75, 0, 0.4, 0.4, 0.4));
-  } else if (pattern === 2) {
-    // Wall
-    for (let row = 0; row < 3; row++)
-      for (let c = 0; c < 3; c++)
-        blocks.push(blk(centerX + (row % 2 === 0 ? 0 : 0.3) + c * 0.6 - 0.6, gY + 0.25 + row * 0.45, 0, 0.55, 0.4, 0.7));
-  } else if (pattern === 3) {
-    // Tall tower + scattered
-    blocks.push(blk(centerX, gY + 0.3, 0, 0.6, 0.5, 0.6));
-    blocks.push(blk(centerX, gY + 0.75, 0, 0.5, 0.4, 0.5));
-    blocks.push(blk(centerX, gY + 1.15, 0, 0.5, 0.4, 0.5));
-    blocks.push(blk(centerX, gY + 1.55, 0, 0.4, 0.35, 0.4));
-    blocks.push(blk(centerX, gY + 1.9, 0, 0.3, 0.3, 0.3));
-    blocks.push(blk(centerX - 1, gY + 0.25, 0.3, 0.4, 0.4, 0.4));
-    blocks.push(blk(centerX + 1.2, gY + 0.25, -0.2, 0.4, 0.4, 0.4));
+  if (p === 0) {
+    // 🏠 HOUSE
+    b(x, Y + 0.5, 0, 1.1, 0.9, 1.0, C.scarlet);        // main wall
+    b(x, Y + 1.15, 0, 1.1, 0.35, 1.0, C.red);           // upper wall
+    b(x, Y + 0.4, 0.45, 0.3, 0.7, 0.12, C.sky);          // door
+    b(x - 0.3, Y + 0.9, 0.45, 0.18, 0.18, 0.08, C.cyan); // window L
+    b(x + 0.3, Y + 0.9, 0.45, 0.18, 0.18, 0.08, C.cyan); // window R
+    b(x, Y + 1.5, 0, 1.3, 0.15, 1.1, C.amber);            // roof base
+    b(x, Y + 1.75, 0, 0.9, 0.15, 0.9, C.orange);          // roof mid
+    b(x, Y + 1.95, 0, 0.5, 0.15, 0.6, C.orange);          // roof top
+    b(x, Y + 2.1, 0, 0.15, 0.2, 0.15, C.brown);           // chimney
+  } else if (p === 1) {
+    // ⛄ SNOWMAN
+    b(x, Y + 0.5, 0, 1.0, 0.9, 1.0, C.white);          // bottom
+    b(x, Y + 1.2, 0, 0.75, 0.65, 0.75, C.white);        // middle
+    b(x, Y + 1.75, 0, 0.55, 0.5, 0.55, C.white);        // head
+    b(x, Y + 2.1, 0, 0.6, 0.1, 0.6, C.indigo);          // hat brim
+    b(x, Y + 2.25, 0, 0.4, 0.22, 0.4, C.indigo);        // hat top
+    b(x, Y + 1.75, 0.28, 0.22, 0.08, 0.08, C.orange);   // nose
+    b(x - 0.1, Y + 1.82, 0.25, 0.08, 0.08, 0.08, C.brown); // eye L
+    b(x + 0.1, Y + 1.82, 0.25, 0.08, 0.08, 0.08, C.brown); // eye R
+    b(x, Y + 1.05, 0.36, 0.1, 0.1, 0.1, C.red);         // button 1
+    b(x, Y + 1.3, 0.34, 0.08, 0.08, 0.08, C.red);       // button 2
+    b(x, Y + 0.55, 0.48, 0.08, 0.08, 0.08, C.red);      // button 3
+  } else if (p === 2) {
+    // 🗼 RAINBOW TOWER — 7 colorful layers
+    const colors = [C.red, C.orange, C.yellow, C.green, C.blue, C.indigo, C.purple];
+    colors.forEach((c, i) => {
+      const s = 0.9 - i * 0.08;
+      b(x, Y + 0.2 + i * 0.38, 0, s, 0.35, s, c);
+    });
+    b(x, Y + 0.2 + 7 * 0.38, 0, 0.2, 0.3, 0.2, C.rose); // star top
+  } else if (p === 3) {
+    // 🌳 TREE
+    b(x, Y + 0.5, 0, 0.35, 0.9, 0.35, C.wood);           // trunk
+    b(x, Y + 1.2, 0, 1.1, 0.6, 1.1, C.green);             // foliage bottom
+    b(x, Y + 1.7, 0, 0.85, 0.5, 0.85, C.emerald);         // foliage mid
+    b(x, Y + 2.1, 0, 0.55, 0.4, 0.55, C.lime);            // foliage top
+    b(x, Y + 2.35, 0, 0.15, 0.15, 0.15, C.yellow);        // star/fruit
+    // Small presents under tree
+    b(x - 0.5, Y + 0.15, 0.3, 0.25, 0.25, 0.25, C.red);
+    b(x + 0.4, Y + 0.15, 0.2, 0.2, 0.2, 0.2, C.blue);
+  } else if (p === 4) {
+    // 🤖 ROBOT
+    b(x - 0.22, Y + 0.4, 0, 0.28, 0.7, 0.35, C.blue);    // leg L
+    b(x + 0.22, Y + 0.4, 0, 0.28, 0.7, 0.35, C.blue);    // leg R
+    b(x, Y + 1.1, 0, 0.8, 0.7, 0.55, C.sky);              // body
+    b(x, Y + 1.1, 0.26, 0.25, 0.25, 0.06, C.yellow);      // belly panel
+    b(x - 0.55, Y + 1.05, 0, 0.18, 0.55, 0.25, C.cyan);   // arm L
+    b(x + 0.55, Y + 1.05, 0, 0.18, 0.55, 0.25, C.cyan);   // arm R
+    b(x, Y + 1.6, 0, 0.22, 0.12, 0.22, C.indigo);         // neck
+    b(x, Y + 1.85, 0, 0.55, 0.4, 0.5, C.indigo);          // head
+    b(x - 0.13, Y + 1.9, 0.24, 0.12, 0.12, 0.06, C.lime); // eye L
+    b(x + 0.13, Y + 1.9, 0.24, 0.12, 0.12, 0.06, C.lime); // eye R
+    b(x, Y + 1.78, 0.24, 0.08, 0.06, 0.06, C.red);        // mouth
+    b(x, Y + 2.15, 0, 0.06, 0.2, 0.06, C.rose);           // antenna
+    b(x, Y + 2.3, 0, 0.12, 0.12, 0.12, C.red);            // antenna ball
   } else {
-    // Castle
-    blocks.push(blk(centerX - 0.6, gY + 0.3, 0, 0.4, 0.5, 0.8));
-    blocks.push(blk(centerX + 0.6, gY + 0.3, 0, 0.4, 0.5, 0.8));
-    blocks.push(blk(centerX, gY + 0.8, 0, 1.5, 0.15, 0.9));
-    blocks.push(blk(centerX - 0.5, gY + 1.1, 0, 0.3, 0.4, 0.3));
-    blocks.push(blk(centerX + 0.5, gY + 1.1, 0, 0.3, 0.4, 0.3));
-    blocks.push(blk(centerX, gY + 1.1, 0, 0.3, 0.5, 0.3));
-    blocks.push(blk(centerX, gY + 1.6, 0, 0.25, 0.25, 0.25));
+    // 🏰 CASTLE
+    // Base wall
+    b(x, Y + 0.4, 0, 1.6, 0.7, 0.8, C.amber);
+    // Gate
+    b(x, Y + 0.3, 0.35, 0.35, 0.5, 0.12, C.wood);
+    // Battlements
+    b(x - 0.65, Y + 0.9, 0, 0.25, 0.2, 0.25, C.orange);
+    b(x - 0.2, Y + 0.9, 0, 0.25, 0.2, 0.25, C.orange);
+    b(x + 0.2, Y + 0.9, 0, 0.25, 0.2, 0.25, C.orange);
+    b(x + 0.65, Y + 0.9, 0, 0.25, 0.2, 0.25, C.orange);
+    // Left tower
+    b(x - 0.6, Y + 1.3, 0, 0.35, 0.6, 0.4, C.amber);
+    b(x - 0.6, Y + 1.7, 0, 0.4, 0.12, 0.45, C.red);
+    b(x - 0.6, Y + 1.85, 0, 0.2, 0.2, 0.2, C.scarlet);
+    // Right tower
+    b(x + 0.6, Y + 1.3, 0, 0.35, 0.6, 0.4, C.amber);
+    b(x + 0.6, Y + 1.7, 0, 0.4, 0.12, 0.45, C.red);
+    b(x + 0.6, Y + 1.85, 0, 0.2, 0.2, 0.2, C.scarlet);
+    // Center tower (tallest)
+    b(x, Y + 1.3, 0, 0.4, 0.7, 0.45, C.yellow);
+    b(x, Y + 1.8, 0, 0.5, 0.12, 0.5, C.red);
+    b(x, Y + 2.0, 0, 0.25, 0.3, 0.25, C.scarlet);
+    // Flag
+    b(x, Y + 2.3, 0, 0.06, 0.25, 0.06, C.brown);
+    b(x + 0.08, Y + 2.4, 0, 0.12, 0.1, 0.04, C.blue);
   }
   return blocks;
 }
@@ -457,7 +513,7 @@ const Scene: React.FC<SceneProps> = ({ carColor, bigWheels, hasWings, hasRocket,
         break;
       case 'roll': {
         const progress = Math.min(t / rollDuration, 1);
-        const eased = progress * progress;
+        const eased = progress * progress * progress;
         const pos = getTrackPos(trackPoints, eased);
         car.position.set(pos.x, pos.y, 0);
         car.rotation.set(0, 0, pos.angle);
@@ -592,8 +648,12 @@ const VroomGame: React.FC<VroomGameProps> = ({ t, onBack, difficulty }) => {
   const handlePhaseChange = useCallback((newPhase: Phase) => {
     setPhase(newPhase);
     if (newPhase === 'land') playBounce();
-    if (newPhase === 'idle') rebuildBlocks();
-  }, [rebuildBlocks]);
+    // After crash, rebuild with next structure when car resets
+    if (newPhase === 'idle') {
+      const anyHit = blocks.some(b => b.hit);
+      if (anyHit) rebuildBlocks();
+    }
+  }, [rebuildBlocks, blocks]);
   const handleBack = useCallback(() => { playUIClick(); onBack(); }, [onBack]);
 
   return (
@@ -675,8 +735,8 @@ const VroomGame: React.FC<VroomGameProps> = ({ t, onBack, difficulty }) => {
       {/* Top bar: back + score */}
       <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2">
         <button onClick={(e) => { e.stopPropagation(); handleBack(); }}
-          className="w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center active:scale-90 transition-transform dbtn">
-          <span className="text-lg sm:text-xl text-gray-300">&#8592;</span>
+          className="flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 bg-white/90 rounded-full shadow-lg border-2 border-white hover:bg-white transition-transform duration-200 active:scale-90">
+          <span className="text-lg sm:text-xl">⬅️</span>
         </button>
         <div className="lcd2 px-3 sm:px-5 py-1 sm:py-2 text-center tracking-widest text-sm sm:text-xl">
           💥 {String(score).padStart(2,'0')}  🏁 {String(launches).padStart(2,'0')}
