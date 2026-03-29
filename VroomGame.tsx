@@ -449,11 +449,11 @@ const CameraFollow: React.FC<{ carRef: React.RefObject<THREE.Group | null>; phas
       tY = isPortrait ? 4 : 3.5;
       lerp = 0.04;
     } else if (phase === 'flight' || phase === 'land') {
-      // FOLLOW: track the car
-      tX = Math.max(0, carX * 0.5);
+      // FOLLOW: track the car tightly so crash is visible
+      tX = carX * 0.75;
       tY = (isPortrait ? 4 : 3) + Math.max(0, (carY - 2) * 0.3);
-      tZ = isPortrait ? 22 : 18;
-      lerp = 0.08;
+      tZ = isPortrait ? 20 : 16;
+      lerp = 0.15;
     } else {
       // RESET: smoothly return to overview
       const midX = (-5.5 + blocksX) / 2;
