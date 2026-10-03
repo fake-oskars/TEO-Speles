@@ -1,0 +1,36 @@
+{
+  "name": "Teo spēles — izglītojošas spēles bērniem 2–5 gadi",
+  "short_name": "Teo spēles",
+  "description": "Tēva un dēla radītas bezmaksas spēles bērniem no 2 līdz 5 gadiem. Spēlēt var ikviens: vārdi, krāsas un mašīnas latviski. Bez reklāmām un reģistrācijas.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#FCF7E1",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/assets/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": [
+    "education",
+    "games",
+    "kids"
+  ],
+  "lang": "lv"
+}
