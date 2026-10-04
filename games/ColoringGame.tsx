@@ -4,6 +4,8 @@ import { say } from '../services/speechService';
 import { colorClip, nameClip, praiseClip } from '../speech/phrases';
 import { trackInteraction } from '../services/analyticsService';
 import { Burst, ConfettiRain, HomeButton, RoundButton, useElementSize } from '../components/ui';
+import { BrushIcon, ClearIcon, NextIcon, PicturesIcon, PaperStar } from '../components/paper';
+import { PAL } from '../components/art';
 import { COLORING_PAGES, type ColoringPage, type Decor, type Region, type Shape } from './coloringPages';
 
 // "Krāsosim!" — pick a paint blob (its name is said aloud), tap a part of the
@@ -61,6 +63,10 @@ const PageSvg: React.FC<{
 }> = ({ page, fills, onRegion, className, style }) => (
   <svg viewBox="0 0 400 400" className={className} style={style}>
     <defs>
+      <filter id="paper-fibres" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" />
+        <feColorMatrix values="0 0 0 0 0.3  0 0 0 0 0.22  0 0 0 0 0.12  0 0 0 0.35 0" />
+      </filter>
       <clipPath id={`clip-${page.id}`}><rect x="0" y="0" width="400" height="400" rx="28" /></clipPath>
     </defs>
     <g clipPath={`url(#clip-${page.id})`}>
@@ -80,6 +86,8 @@ const PageSvg: React.FC<{
         strokeLinejoin: 'round',
         pointerEvents: 'none',
       } as React.SVGProps<SVGElement>, `decor-${i}`))}
+      {/* Paper fibres over the whole page, so filled parts look like coloured paper */}
+      <rect x="0" y="0" width="400" height="400" filter="url(#paper-fibres)" opacity="0.55" style={{ mixBlendMode: 'multiply' }} pointerEvents="none" />
     </g>
     <rect x="2.5" y="2.5" width="395" height="395" rx="26" fill="none" stroke={OUTLINE} strokeWidth="5" pointerEvents="none" />
   </svg>
@@ -204,17 +212,21 @@ const PaletteBar: React.FC<{ paint: Paint; onPick: (p: Paint) => void; landscape
         <button
           key={p.key}
           onPointerDown={(e) => { e.stopPropagation(); onPick(p); }}
-          className={`rounded-full transition-transform duration-150 ${selected ? 'scale-110 z-10' : 'active:scale-90'}`}
+          className={`paint-disc rounded-full transition-transform duration-150 ${selected ? 'scale-110 z-10' : 'active:scale-90'}`}
           style={{
             background: p.hex === RAINBOW ? 'conic-gradient(#ef4444, #facc15, #22c55e, #3b82f6, #a855f7, #ef4444)' : p.hex,
             boxShadow: selected
-              ? `0 0 0 4px #fff, 0 0 0 8px ${p.hex === RAINBOW ? '#a855f7' : p.hex === '#ffffff' ? '#cbd5e1' : p.hex}, 0 8px 18px rgba(0,0,0,0.25)`
-              : 'inset 0 -6px 0 rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.18)',
-            border: p.hex === '#ffffff' ? '2px solid #e2e8f0' : undefined,
+              ? `0 0 0 4px #fffaf0, 0 0 0 8px ${p.hex === RAINBOW ? '#a855f7' : p.hex === '#ffffff' ? '#d9c8ab' : p.hex}, 0 8px 18px rgba(45,36,64,0.3)`
+              : '0 5px 9px -3px rgba(45,36,64,0.35)',
+            border: p.hex === '#ffffff' ? '2px solid #eadcc5' : undefined,
           }}
           aria-label={p.key}
         >
-          {selected && <span className="text-white drop-shadow text-xl" style={{ color: p.hex === '#ffffff' || p.hex === '#facc15' ? '#334155' : '#fff' }}>✓</span>}
+          {selected && (
+            <svg viewBox="0 0 24 24" className="w-1/2 h-1/2 mx-auto" fill="none" stroke={p.hex === '#ffffff' || p.hex === '#facc15' ? '#2d2440' : '#fffaf0'} strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12.5 L10 17 L19 7.5" />
+            </svg>
+          )}
         </button>
       );
     })}
@@ -311,10 +323,10 @@ const ColoringGame: React.FC<ColoringGameProps> = ({ t, onBack, language }) => {
     const gap = 14;
     const tile = Math.max(60, Math.min((area.width - gap * (cols - 1)) / cols, (area.height - gap * (rows - 1)) / rows));
     return (
-      <div ref={rootRef} className="w-full h-full flex flex-col select-none" style={{ background: 'linear-gradient(180deg, #fef3c7 0%, #fce7f3 100%)' }}>
+      <div ref={rootRef} className="paper-bg w-full h-full flex flex-col select-none" style={{ '--bg': '#f4ead8' } as React.CSSProperties}>
         <div className="shrink-0 flex items-center gap-3 px-4 pt-4">
           <HomeButton onClick={onBack} />
-          <h1 className="font-bold text-outline" style={{ fontSize: 'clamp(28px, 6vmin, 56px)', color: '#db2777' }}>🎨 {t('coloringGameTitle')}</h1>
+          <span className="paper-banner" style={{ '--c': PAL.pink, fontSize: 'clamp(26px, 5.5vmin, 50px)' } as React.CSSProperties}>{t('coloringGameTitle')}</span>
         </div>
         <div ref={areaRef} className="flex-1 min-h-0 m-4 overflow-y-auto" style={{ touchAction: 'pan-y' }}>
           {area.width > 0 && (
@@ -325,7 +337,7 @@ const ColoringGame: React.FC<ColoringGameProps> = ({ t, onBack, language }) => {
                 style={{ background: 'conic-gradient(from 45deg, #fca5a5, #fde68a, #86efac, #93c5fd, #d8b4fe, #fca5a5)' }}
                 aria-label="Draw"
               >
-                <span className="bob inline-block" style={{ fontSize: tile * 0.45 }}>🖌️</span>
+                <BrushIcon className="bob" style={{ width: tile * 0.5, height: tile * 0.5 }} />
               </button>
               {COLORING_PAGES.map((p, i) => (
                 <button
@@ -336,7 +348,7 @@ const ColoringGame: React.FC<ColoringGameProps> = ({ t, onBack, language }) => {
                   aria-label={t(p.name)}
                 >
                   <PageSvg page={p} fills={fills[p.id] || {}} className="w-full h-full" />
-                  {isComplete(p, fills[p.id]) && <span className="absolute top-1 right-2 text-2xl">⭐</span>}
+                  {isComplete(p, fills[p.id]) && <PaperStar filled className="absolute top-1.5 right-1.5 w-8 h-8" />}
                 </button>
               ))}
             </div>
@@ -350,16 +362,16 @@ const ColoringGame: React.FC<ColoringGameProps> = ({ t, onBack, language }) => {
   const pictureSize = Math.max(100, Math.min(area.width, area.height) - 8);
 
   return (
-    <div ref={rootRef} className="relative w-full h-full flex flex-col select-none overflow-hidden" style={{ background: 'linear-gradient(180deg, #fef3c7 0%, #fce7f3 100%)' }}>
+    <div ref={rootRef} className="paper-bg relative w-full h-full flex flex-col select-none overflow-hidden" style={{ '--bg': '#f4ead8' } as React.CSSProperties}>
       <div className="shrink-0 flex items-center justify-between gap-2 px-3 pt-3 sm:px-4 sm:pt-4">
         <div className="flex gap-2">
           <HomeButton onClick={onBack} />
-          <RoundButton onClick={() => { playUIClick(); setView(null); setCelebrate(false); }} label="Pictures" className="w-14 h-14 sm:w-16 sm:h-16 text-3xl">🖼️</RoundButton>
+          <RoundButton onClick={() => { playUIClick(); setView(null); setCelebrate(false); }} label="Pictures" className="soft-btn w-14 h-14 sm:w-16 sm:h-16 rounded-full"><PicturesIcon className="w-[56%] h-[56%]" /></RoundButton>
         </div>
         <div className="flex gap-2">
-          <RoundButton onClick={clearPage} label="Clear" className="w-14 h-14 sm:w-16 sm:h-16 text-3xl">🧽</RoundButton>
+          <RoundButton onClick={clearPage} label="Clear" className="soft-btn w-14 h-14 sm:w-16 sm:h-16 rounded-full"><ClearIcon className="w-[56%] h-[56%]" /></RoundButton>
           {page && (
-            <RoundButton onClick={nextPage} label="Next" className={`w-14 h-14 sm:w-16 sm:h-16 text-3xl ${celebrate ? 'wiggle-loop ring-4 ring-pink-400' : ''}`}>➡️</RoundButton>
+            <RoundButton onClick={nextPage} label="Next" className={`soft-btn w-14 h-14 sm:w-16 sm:h-16 rounded-full ${celebrate ? 'wiggle-loop ring-4 ring-pink-400' : ''}`}><NextIcon className="w-[56%] h-[56%]" /></RoundButton>
           )}
         </div>
       </div>
@@ -388,8 +400,8 @@ const ColoringGame: React.FC<ColoringGameProps> = ({ t, onBack, language }) => {
         <>
           <ConfettiRain />
           <div className="absolute inset-0 z-40 flex flex-col items-center justify-center pointer-events-none">
-            <div className="pop-in text-[8rem] sm:text-[10rem] leading-none drop-shadow-2xl">🌟</div>
-            <div className="pop-in text-white font-bold text-5xl sm:text-7xl text-outline" style={{ animationDelay: '0.15s' }}>{t('amazing')}</div>
+            <PaperStar filled className="pop-in w-40 h-40 sm:w-52 sm:h-52 drop-shadow-xl" />
+            <span className="paper-banner pop-in" style={{ '--c': PAL.pink, fontSize: 'clamp(48px, 12vmin, 110px)', animationDelay: '0.15s' } as React.CSSProperties}>{t('amazing')}</span>
           </div>
         </>
       )}

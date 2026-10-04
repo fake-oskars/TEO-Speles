@@ -207,34 +207,7 @@
         100% { transform: scale(1) rotate(0); }
       }
       .star-in { animation: starIn 0.6s cubic-bezier(.34,1.56,.64,1) both; }
-      @keyframes roadDash { from { background-position-x: 0; } to { background-position-x: -40px; } }
-      .road-dash { animation: roadDash 0.5s linear infinite; }
 
-      /* Menu card illustrations */
-      @keyframes jumpArc {
-        0%   { left: 2%;  bottom: 78%; transform: scaleX(-1) rotate(-40deg); opacity: 1; }
-        10%  { left: 8%;  bottom: 50%; transform: scaleX(-1) rotate(-20deg); }
-        20%  { left: 20%; bottom: 22%; transform: scaleX(-1) rotate(-5deg); }
-        30%  { left: 32%; bottom: 14%; transform: scaleX(-1) rotate(5deg); }
-        40%  { left: 48%; bottom: 25%; transform: scaleX(-1) rotate(-20deg); }
-        48%  { left: 58%; bottom: 52%; transform: scaleX(-1) rotate(-30deg); }
-        58%  { left: 68%; bottom: 72%; transform: scaleX(-1) rotate(-10deg); }
-        70%  { left: 76%; bottom: 65%; transform: scaleX(-1) rotate(10deg); }
-        82%  { left: 80%; bottom: 38%; transform: scaleX(-1) rotate(25deg); }
-        90%  { left: 82%; bottom: 22%; transform: scaleX(-1) rotate(10deg); opacity: 0.7; }
-        95%  { opacity: 0; left: 82%; bottom: 22%; }
-        100% { left: 2%;  bottom: 78%; transform: scaleX(-1) rotate(-40deg); opacity: 1; }
-      }
-      .vroom-jump-car { animation: jumpArc 3.5s ease-in-out infinite; }
-      @keyframes orbit {
-        0% { transform: rotate(0deg) translateX(var(--orbit, 32px)) rotate(0deg); }
-        100% { transform: rotate(360deg) translateX(var(--orbit, 32px)) rotate(-360deg); }
-      }
-      .orbit-animation { animation: orbit 5s linear infinite; }
-      @keyframes fadeInScale {
-        0% { opacity: 0; transform: scale(0.6) rotate(-10deg); }
-        100% { opacity: 1; transform: scale(1) rotate(0); }
-      }
       @keyframes cruise {
         0% { transform: translateX(-12%) scaleX(-1) translateY(0); }
         25% { transform: translateX(8%) scaleX(-1) translateY(-3px); }
@@ -243,6 +216,177 @@
         100% { transform: translateX(-12%) scaleX(-1) translateY(0); }
       }
       .cruise { animation: cruise 4s ease-in-out infinite; }
+
+      /* Football (games/FootballGame.tsx) */
+      @keyframes standsCheer { 0%, 100% { transform: translateY(0); } 25%, 75% { transform: translateY(-5px); } 50% { transform: translateY(2px); } }
+      .stands-cheer { animation: standsCheer 0.4s ease-in-out 4; }
+      @keyframes netShake {
+        0%, 100% { transform: scale(1, 1); }
+        25% { transform: scale(1.02, 1.05); }
+        55% { transform: scale(0.99, 0.97); }
+        80% { transform: scale(1.01, 1.02); }
+      }
+      .net-shake { animation: netShake 0.6s ease-out; }
+      @keyframes tapPulse { 0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0.9; } 100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; } }
+      .tap-pulse { border: 5px solid #fffaf0; animation: tapPulse 1.2s ease-out infinite; }
+      /* Words cut from coloured paper with a torn bottom edge */
+      .paper-banner {
+        display: inline-block; padding: 0.12em 0.55em 0.24em; transform: rotate(-3deg);
+        background-color: var(--c); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-blend-mode: multiply;
+        color: #fffaf0; font-weight: 700; line-height: 1; white-space: nowrap;
+        text-shadow: 0 0.04em 0 color-mix(in srgb, var(--c) 60%, #000);
+        clip-path: polygon(0 0, 100% 0, 100% 88%, 96% 100%, 91% 90%, 85% 99%, 79% 89%, 73% 98%, 66% 90%, 60% 100%, 53% 90%, 46% 99%, 40% 89%, 33% 98%, 27% 90%, 20% 100%, 14% 90%, 8% 99%, 3% 90%, 0 97%);
+        filter: drop-shadow(0 6px 6px rgba(45,36,64,0.35));
+      }
+      /* The paper kicker hops into the kick, then jumps for joy after a goal */
+      @keyframes paperKick {
+        0% { transform: rotate(0) translate(0, 0); }
+        30% { transform: rotate(-6deg) translate(-4%, -4%); }
+        55% { transform: rotate(10deg) translate(10%, 0); }
+        100% { transform: rotate(0) translate(0, 0); }
+      }
+      .paper-kick { animation: paperKick 0.45s ease-out; }
+      @keyframes kickerCheer {
+        0%, 100% { transform: translateY(0) scale(1, 1); }
+        15% { transform: translateY(0) scale(1.1, 0.88); }
+        45% { transform: translateY(-45%) scale(0.95, 1.08); }
+        75% { transform: translateY(0) scale(1.08, 0.92); }
+      }
+      .kicker-cheer { animation: kickerCheer 0.55s ease-in-out 3; }
+
+      /* --- Menu: paper, wordmark, game cards --- */
+      .paper { background-color: #f7eedf; }
+      .paper::after {
+        content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode: multiply;
+      }
+      .paper::after { z-index: 5; }
+      .wordmark { font-weight: 700; letter-spacing: -0.01em; }
+      @keyframes letterBob {
+        0%, 100% { transform: translateY(0) rotate(-2deg); }
+        50% { transform: translateY(-0.05em) rotate(2deg); }
+      }
+      /* Letters cut out of coloured paper, with a cream paper margin, glued slightly crooked */
+      .wordmark-letter {
+        animation: letterBob 3.2s ease-in-out infinite;
+        -webkit-text-stroke: 0.14em #fffaf0; paint-order: stroke fill;
+        text-shadow: 0 0.05em 0.06em rgba(45,36,64,0.35);
+      }
+      .soft-btn {
+        background: #fffdf8;
+        box-shadow: 0 5px 0 #e3d3b8, 0 14px 22px -12px rgba(45,36,64,0.4);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      .soft-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #e3d3b8, 0 6px 10px -6px rgba(45,36,64,0.4); }
+      @keyframes riseIn {
+        from { opacity: 0; transform: translateY(26px) scale(0.95); }
+        to { opacity: 1; transform: none; }
+      }
+      .rise-in { animation: riseIn 0.6s cubic-bezier(.2,.9,.3,1.15) both; }
+
+      /* Game cards: a coloured panel with a 3D-rendered toy popping out of its top edge */
+      .menu-scroll { overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+      .menu-grid {
+        display: grid; grid-template-columns: 1fr; gap: 22px;
+        grid-auto-rows: clamp(230px, 36svh, 340px);
+        padding: 18px 20px 32px; width: 100%; max-width: 1180px; margin: 0 auto;
+      }
+      /* Bigger screens: every game visible at once, no scrolling */
+      @media (min-width: 600px) and (max-aspect-ratio: 1/1) {
+        .menu-grid { height: 100%; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); grid-auto-rows: auto; gap: clamp(18px, 3vmin, 32px); padding: 16px clamp(20px, 4vmin, 40px) clamp(20px, 4vmin, 40px); }
+      }
+      @media (min-aspect-ratio: 1/1) {
+        .menu-grid { height: 100%; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); grid-auto-rows: auto; gap: clamp(14px, 3vmin, 34px); padding: clamp(8px, 2vmin, 20px) clamp(20px, 4vmin, 48px) clamp(16px, 4vmin, 44px); }
+      }
+      /* Each game is a picture print taped into a scrapbook, with a paper name strip */
+      .game-card {
+        position: relative; min-height: 0; padding: clamp(6px, 1.1vmin, 10px);
+        background: #fffaf0; border-radius: clamp(10px, 1.6vmin, 16px);
+        transform: rotate(var(--tilt, 0deg));
+        box-shadow: 0 1px 0 rgba(45,36,64,0.06), 0 16px 26px -16px rgba(45,36,64,0.55), 0 3px 6px -3px rgba(45,36,64,0.2);
+        transition: transform 0.3s cubic-bezier(.3,.7,.4,1.3), box-shadow 0.3s ease;
+        -webkit-tap-highlight-color: transparent; outline: none; container-type: size;
+        animation: dropIn 0.7s cubic-bezier(.2,.9,.3,1.1) both;
+      }
+      @keyframes dropIn {
+        0% { opacity: 0; transform: translateY(-28px) rotate(calc(var(--tilt, 0deg) * -4)) scale(1.04); }
+        70% { opacity: 1; }
+        100% { opacity: 1; transform: rotate(var(--tilt, 0deg)); }
+      }
+      .game-card::after {
+        content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode: multiply; opacity: 0.7;
+      }
+      .game-card-scene {
+        display: block; width: 100%; height: 100%; object-fit: cover;
+        border-radius: clamp(6px, 1vmin, 10px); pointer-events: none; user-select: none;
+      }
+      .game-card-tape {
+        position: absolute; top: clamp(-12px, -1.8vmin, -8px); left: 50%; z-index: 2;
+        width: clamp(70px, 26cqw, 120px); height: clamp(20px, 3.4vmin, 30px);
+        transform: translateX(-50%) rotate(calc(var(--tilt, 0deg) * -3 + 2deg));
+        background: var(--tape); opacity: 0.92;
+        clip-path: polygon(0 8%, 4% 0, 9% 10%, 14% 0, 19% 8%, 100% 0, 96% 50%, 100% 100%, 90% 92%, 84% 100%, 78% 90%, 0 100%, 4% 50%);
+        box-shadow: 0 1px 2px rgba(45,36,64,0.15);
+      }
+      .game-card-title {
+        position: absolute; left: 50%; bottom: clamp(10px, 6cqh, 22px);
+        transform: translateX(-50%) rotate(calc(var(--tilt, 0deg) * -2));
+        padding: 0.2em 0.8em 0.34em;
+        background-color: var(--c);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        background-blend-mode: multiply;
+        color: #fffaf0; font-weight: 700; line-height: 1; white-space: nowrap; letter-spacing: 0.01em;
+        font-size: clamp(20px, min(12cqh, 10cqw), 44px);
+        text-shadow: 0 0.05em 0 color-mix(in srgb, var(--c) 60%, #000);
+        /* Torn-paper bottom edge */
+        clip-path: polygon(0 0, 100% 0, 100% 88%, 96% 100%, 91% 90%, 85% 99%, 79% 89%, 73% 98%, 66% 90%, 60% 100%, 53% 90%, 46% 99%, 40% 89%, 33% 98%, 27% 90%, 20% 100%, 14% 90%, 8% 99%, 3% 90%, 0 97%);
+        filter: drop-shadow(0 4px 4px rgba(45,36,64,0.25));
+      }
+      /* "New" is a scalloped sticker */
+      .game-card-new {
+        position: absolute; top: clamp(-12px, -1.8vmin, -8px); right: clamp(8px, 4cqw, 18px); z-index: 3;
+        display: grid; place-items: center; width: clamp(50px, 9vmin, 72px); aspect-ratio: 1;
+        background-color: #f6b93b; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-blend-mode: multiply;
+        color: #2d2440; font-weight: 700; font-size: clamp(11px, 1.9vmin, 15px); line-height: 1;
+        transform: rotate(12deg);
+        -webkit-mask: radial-gradient(circle at 50% 50%, #000 62%, transparent 63%), conic-gradient(#000 0 0);
+        mask: radial-gradient(circle, #000 0 0);
+        clip-path: polygon(50% 0%, 61% 8%, 75% 5%, 81% 18%, 95% 22%, 93% 36%, 100% 50%, 93% 64%, 95% 78%, 81% 82%, 75% 95%, 61% 92%, 50% 100%, 39% 92%, 25% 95%, 19% 82%, 5% 78%, 7% 64%, 0% 50%, 7% 36%, 5% 22%, 19% 18%, 25% 5%, 39% 8%);
+        filter: drop-shadow(0 3px 3px rgba(45,36,64,0.3));
+      }
+      @media (hover: hover) {
+        .game-card:hover { transform: rotate(0deg) translateY(-5px) scale(1.01); box-shadow: 0 1px 0 rgba(45,36,64,0.06), 0 26px 36px -18px rgba(45,36,64,0.6), 0 3px 6px -3px rgba(45,36,64,0.2); }
+      }
+      .game-card:active { transform: rotate(0deg) scale(0.97); transition-duration: 0.1s; }
+
+      /* Paper bunting and cut-paper hills */
+      .bunting { height: clamp(22px, 4.2vmin, 40px); z-index: 0; }
+      .bunting-flag { animation: flagSway 3.6s ease-in-out infinite; filter: drop-shadow(0 2px 1px rgba(45,36,64,0.18)); }
+      @keyframes flagSway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+      .paper-cut { filter: drop-shadow(0 -2px 3px rgba(45,36,64,0.1)); }
+
+      /* --- Paper look shared by the games (components/paper.tsx) --- */
+      .paper-bg { background-color: var(--bg, #f4ead8); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); transition: background-color 0.5s ease; }
+      .paper-grain { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode: multiply; opacity: 0.8; }
+      .paint-disc { position: relative; }
+      .paint-disc::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode: multiply; pointer-events: none; }
+      .paper-dot { background: rgba(255,250,240,0.55); box-shadow: 0 3px 5px -2px rgba(45,36,64,0.25); }
+      .paper-bubble {
+        background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.75), rgba(255,250,240,0.45) 55%, rgba(255,250,240,0.3));
+        box-shadow: inset 0 0 0 3px rgba(255,255,255,0.55), 0 18px 34px -16px rgba(45,36,64,0.45);
+      }
+      .paper-question {
+        display: grid; place-items: center; width: clamp(56px, 13vmin, 140px); aspect-ratio: 1; border-radius: 50%;
+        background: #fffaf0; color: var(--c); font-weight: 700; font-size: clamp(34px, 8vmin, 90px); line-height: 1;
+        box-shadow: 0 6px 12px -6px rgba(45,36,64,0.45);
+      }
+      .paper-card {
+        background-color: #fffaf0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        box-shadow: 0 2px 0 rgba(45,36,64,0.06), 0 12px 22px -14px rgba(45,36,64,0.55);
+      }
+      .paper-card.found { box-shadow: 0 0 0 6px #f6b93b, 0 16px 26px -14px rgba(45,36,64,0.6); }
+      .paper-card.wrong { background-color: #f8d2c8; }
 
       .toy-btn {
         box-shadow: 0 8px 0 rgba(0,0,0,0.18), 0 14px 28px rgba(0,0,0,0.18), inset 0 2px 0 rgba(255,255,255,0.45);
@@ -254,7 +398,7 @@
       }
       .text-outline { -webkit-text-stroke: 0; text-shadow: 0 3px 0 rgba(0,0,0,0.15), 0 6px 18px rgba(0,0,0,0.12); }
       @media (prefers-reduced-motion: reduce) {
-        .drift, .floaty, .bob, .wiggle-loop, .cruise, .vroom-jump-car, .orbit-animation, .road-dash { animation: none !important; }
+        .drift, .floaty, .bob, .wiggle-loop, .cruise, .stands-cheer, .tap-pulse, .wordmark-letter, .game-card, .bunting-flag { animation: none !important; }
       }
     </style>
   </head>

@@ -8,6 +8,7 @@ import { ARRIVE_CLIP, lightClip, nameClip } from '../speech/phrases';
 import { trackInteraction } from '../services/analyticsService';
 import type { Item } from '../types';
 import { ConfettiRain, HomeButton } from '../components/ui';
+import { BasketIcon, FlagIcon, HornIcon, ItemArt, itemImage } from '../components/paper';
 
 // "Braucam!" — a no-fail driving game for ~3 year olds.
 // The vehicle drives by itself. Tap anywhere to hop and catch floating goodies,
@@ -134,6 +135,30 @@ const mod = (a: number, b: number) => ((a % b) + b) % b;
 const hash = (n: number) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
+// Paper cut-out pictures replace the emoji wherever there is one (public/assets/items/)
+const SCENERY_ART: Record<string, string> = {
+  '🌳': 'tree', '🌲': 'pine', '🏡': 'house', '🏠': 'house', '🌻': 'flower', '🌷': 'tulip', '🌼': 'daisy', '🌱': 'sprout',
+  '🍄': 'mushroom', '🏢': 'building', '🏬': 'shop', '🏫': 'school', '🏥': 'hospital', '🏨': 'building', '🏦': 'building',
+  '⛵': 'boat', '🚢': 'ship', '🌴': 'palm', '⛱️': 'beach-umbrella', '🐚': 'shell', '🦀': 'crab', '⭐': 'star',
+  '🦉': 'owl', '🏔️': 'mountain', '☃️': 'snowman', '⛄': 'snowman', '❄️': 'snowflake', '🌙': 'moon', '☁️': 'cloud',
+  '🎪': 'circus', '🏖️': 'beach-umbrella', '🏰': 'castle', '🎄': 'christmas-tree', '🐄': 'cow', '🐑': 'sheep',
+};
+const artFor = (emoji: string): string | undefined =>
+  SCENERY_ART[emoji] ?? ALL_ITEMS.find(i => i.emoji === emoji)?.name ?? VEHICLES.find(v => v.emoji === emoji)?.name;
+
+const artCache = new Map<string, HTMLImageElement>();
+const paperArt = (emoji: string): HTMLImageElement | null => {
+  const name = artFor(emoji);
+  if (!name) return null;
+  let img = artCache.get(name);
+  if (!img) {
+    img = new Image();
+    img.src = itemImage(name);
+    artCache.set(name, img);
+  }
+  return img.complete && img.naturalWidth > 0 ? img : null;
+};
+
 const spriteCache = new Map<string, HTMLCanvasElement>();
 const sprite = (emoji: string, px: number): HTMLCanvasElement => {
   const key = `${emoji}@${px}`;
@@ -153,17 +178,39 @@ const sprite = (emoji: string, px: number): HTMLCanvasElement => {
 
 interface DrawOpts { flip?: boolean; rot?: number; alpha?: number; sx?: number; sy?: number; }
 
-// Draws an emoji centred at (x, y) with the given font size.
+// Draws a thing centred at (x, y), about `size` big: its paper picture once loaded,
+// the emoji until then.
 const drawEmoji = (ctx: CanvasRenderingContext2D, emoji: string, x: number, y: number, size: number, o: DrawOpts = {}) => {
-  const res = size * (window.devicePixelRatio || 1) > 170 ? 384 : 160;
-  const img = sprite(emoji, res);
-  const box = size / 0.78;
+  const art = paperArt(emoji);
   ctx.save();
   ctx.translate(x, y);
   if (o.rot) ctx.rotate(o.rot);
   ctx.scale((o.flip ? -1 : 1) * (o.sx ?? 1), o.sy ?? 1);
   if (o.alpha !== undefined) ctx.globalAlpha = o.alpha;
-  ctx.drawImage(img, -box / 2, -box / 2, box, box);
+  if (art) {
+    const k = (size * 1.05) / Math.max(art.naturalWidth, art.naturalHeight);
+    const w = art.naturalWidth * k;
+    const h = art.naturalHeight * k;
+    // Sit the picture on the same baseline the emoji used
+    ctx.drawImage(art, -w / 2, size * 0.5 - h, w, h);
+  } else {
+    const res = size * (window.devicePixelRatio || 1) > 170 ? 384 : 160;
+    const box = size / 0.78;
+    ctx.drawImage(sprite(emoji, res), -box / 2, -box / 2, box, box);
+  }
+  ctx.restore();
+};
+
+// A pulsing paper ring that says "tap here"
+const drawTapRing = (ctx: CanvasRenderingContext2D, x: number, y: number, r: number, time: number) => {
+  const k = (time * 1.2) % 1;
+  ctx.save();
+  ctx.globalAlpha = 0.9 * (1 - k);
+  ctx.strokeStyle = '#fffaf0';
+  ctx.lineWidth = Math.max(3, r * 0.14);
+  ctx.beginPath();
+  ctx.arc(x, y, r * (0.7 + 0.5 * k), 0, Math.PI * 2);
+  ctx.stroke();
   ctx.restore();
 };
 
@@ -587,7 +634,7 @@ const DriveGame: React.FC<DriveGameProps> = ({ t, onBack, language }) => {
         if (Math.abs(gd.x - g.carX) < 0.13 && Math.abs(gd.h - cy) < 0.14) {
           gd.taken = true;
           gd.t = 0;
-          r.bag.push(gd.item.emoji);
+          r.bag.push(gd.item.name);
           setCount(c => c + 1);
           playCollect();
           say(nameClip(gd.item.name));
@@ -751,7 +798,7 @@ const DriveGame: React.FC<DriveGameProps> = ({ t, onBack, language }) => {
         ctx.fillStyle = 'rgba(255,255,255,0.9)';
         ctx.fillRect(toX(l.x - 0.18), L.roadTop + S * 0.03, Math.max(4, S * 0.025), L.roadH - S * 0.06);
         if (l.state === 'red' && l.wait > HINT_AFTER) {
-          drawEmoji(ctx, '👆', x + S * 0.02, top + boxH + S * 0.1 + Math.sin(time * 7) * S * 0.02, S * 0.11);
+          drawTapRing(ctx, x, top + boxH / 2, Math.max(boxW, boxH) * 0.7, time);
         }
       });
 
@@ -790,7 +837,7 @@ const DriveGame: React.FC<DriveGameProps> = ({ t, onBack, language }) => {
         drawEmoji(ctx, a.item.emoji, x, y - size * 0.45 - hop, size, { alpha, rot: walking ? Math.sin(a.t * 9) * 0.08 : 0 });
         a.hit = { x, y: y - size * 0.45, r: Math.max(size * 0.8, 50) };
         if (a.state === 'blocking' && a.wait > HINT_AFTER) {
-          drawEmoji(ctx, '👆', x + S * 0.03, y + S * 0.06 + Math.sin(time * 7) * S * 0.02, S * 0.11);
+          drawTapRing(ctx, x, y - size * 0.45, size * 0.75, time);
         }
       };
 
@@ -905,37 +952,39 @@ const DriveGame: React.FC<DriveGameProps> = ({ t, onBack, language }) => {
   return (
     <div className="fixed inset-0 select-none overflow-hidden bg-sky-200" style={{ touchAction: 'none' }}>
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" onPointerDown={handlePointer} />
+      {/* Paper grain over the whole scene */}
+      <div className="paper-grain absolute inset-0 pointer-events-none" />
 
       {/* HUD */}
       <div className="absolute top-0 left-0 right-0 flex items-start justify-between gap-3 p-3 sm:p-4 pointer-events-none">
         <div className="pointer-events-auto"><HomeButton onClick={onBack} /></div>
 
         {/* Trip progress */}
-        <div className="flex-1 max-w-md mt-2 flex items-center gap-2 bg-white/80 rounded-full px-3 py-2 shadow-lg">
-          <span className="text-xl sm:text-2xl leading-none">🚩</span>
-          <div className="relative flex-1 h-3 rounded-full bg-slate-200">
+        <div className="soft-btn flex-1 max-w-md mt-2 flex items-center gap-2 rounded-full px-3 py-2">
+          <FlagIcon className="w-6 h-6 sm:w-7 sm:h-7 shrink-0" />
+          <div className="relative flex-1 h-3 rounded-full" style={{ background: '#eadcc5' }}>
             <span
               ref={progressCarRef}
-              className="absolute top-1/2 text-2xl sm:text-3xl leading-none"
-              style={{ left: '0%', transform: 'translate(-50%, -55%) scaleX(-1)' }}
+              className="absolute top-1/2"
+              style={{ left: '0%', transform: 'translate(-50%, -60%) scaleX(-1)' }}
             >
-              {vehicle.emoji}
+              <ItemArt name={vehicle.name} size="clamp(30px, 5vmin, 42px)" className="block" />
             </span>
           </div>
-          <span className="text-2xl sm:text-3xl leading-none">{theme.destination}</span>
+          <ItemArt name={artFor(theme.destination) ?? 'house'} size="clamp(30px, 5vmin, 42px)" className="block shrink-0" />
         </div>
 
         <div className="flex gap-2 pointer-events-auto">
           <button
             onPointerDown={(e) => { e.stopPropagation(); openPicker(); }}
-            className="toy-btn w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/95 flex items-center justify-center text-3xl sm:text-4xl"
+            className="soft-btn w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center"
             aria-label="Choose vehicle"
           >
-            <span className="inline-block" style={{ transform: 'scaleX(-1)' }}>{vehicle.emoji}</span>
+            <ItemArt name={vehicle.name} size="76%" style={{ transform: 'scaleX(-1)' }} />
           </button>
-          <div className="h-14 sm:h-16 min-w-[4.5rem] px-3 rounded-2xl bg-white/95 shadow-lg flex items-center justify-center gap-1">
-            <span className="text-3xl leading-none">🧺</span>
-            <span key={count} className="pop-in text-2xl sm:text-3xl font-bold text-amber-600">{count}</span>
+          <div className="soft-btn h-14 sm:h-16 min-w-[4.5rem] px-3 rounded-full flex items-center justify-center gap-1">
+            <BasketIcon className="w-8 h-8 sm:w-9 sm:h-9" />
+            <span key={count} className="pop-in text-2xl sm:text-3xl font-bold" style={{ color: '#d99a1f' }}>{count}</span>
           </div>
         </div>
       </div>
@@ -954,31 +1003,31 @@ const DriveGame: React.FC<DriveGameProps> = ({ t, onBack, language }) => {
           </button>
           <button
             onPointerDown={(e) => { e.stopPropagation(); honk(); }}
-            className="toy-btn absolute right-4 bottom-4 sm:right-6 sm:bottom-6 w-20 h-20 sm:w-24 sm:h-24 [@media(max-height:500px)]:w-16 [@media(max-height:500px)]:h-16 [@media(max-height:500px)]:bottom-2 [@media(max-height:500px)]:right-2 rounded-full bg-yellow-400 flex items-center justify-center text-4xl sm:text-5xl"
+            className="toy-btn absolute right-4 bottom-4 sm:right-6 sm:bottom-6 w-20 h-20 sm:w-24 sm:h-24 [@media(max-height:500px)]:w-16 [@media(max-height:500px)]:h-16 [@media(max-height:500px)]:bottom-2 [@media(max-height:500px)]:right-2 rounded-full bg-yellow-400 flex items-center justify-center"
             aria-label="Horn"
           >
-            📯
+            <HornIcon className="w-[58%] h-[58%]" />
           </button>
         </>
       )}
 
       {/* Vehicle picker */}
       {picking && (
-        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center p-4 bg-sky-900/40 backdrop-blur-sm">
-          <div className="pop-in bg-white/95 rounded-[32px] shadow-2xl p-4 sm:p-6 w-full max-w-lg landscape:max-w-2xl max-h-full overflow-y-auto">
-            <h2 className="text-center text-3xl sm:text-4xl [@media(max-height:500px)]:text-2xl font-bold text-sky-800 mb-3 sm:mb-4 [@media(max-height:500px)]:mb-2">{t('driveGameTitle')}</h2>
+        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center p-4 backdrop-blur-sm" style={{ background: 'rgba(45,36,64,0.35)' }}>
+          <div className="paper-bg pop-in rounded-[32px] shadow-2xl p-4 sm:p-6 w-full max-w-lg landscape:max-w-2xl max-h-full overflow-y-auto" style={{ '--bg': '#f4ead8' } as React.CSSProperties}>
+            <div className="flex justify-center mb-3 sm:mb-4 [@media(max-height:500px)]:mb-2">
+              <span className="paper-banner" style={{ '--c': '#3e8ede', fontSize: 'clamp(26px, 6vmin, 40px)' } as React.CSSProperties}>{t('driveGameTitle')}</span>
+            </div>
             <div className="grid grid-cols-3 landscape:grid-cols-5 gap-3 sm:gap-4">
               {VEHICLES.map((v, i) => (
                 <button
                   key={v.name}
                   onClick={() => chooseVehicle(v)}
-                  className={`toy-btn aspect-square rounded-3xl flex items-center justify-center pop-in ${['bg-rose-100', 'bg-amber-100', 'bg-lime-100', 'bg-sky-100', 'bg-violet-100', 'bg-orange-100', 'bg-blue-100', 'bg-red-100', 'bg-emerald-100'][i]}`}
+                  className="paper-card aspect-square rounded-3xl flex items-center justify-center pop-in active:scale-95 transition-transform"
                   style={{ animationDelay: `${i * 40}ms` }}
                   aria-label={t(v.name)}
                 >
-                  <span className="bob inline-block" style={{ fontSize: 'clamp(40px, 12vmin, 84px)', lineHeight: 1 }}>
-                    <span className="inline-block" style={{ transform: 'scaleX(-1)' }}>{v.emoji}</span>
-                  </span>
+                  <ItemArt name={v.name} size="80%" className="bob" style={{ transform: 'scaleX(-1)' }} />
                 </button>
               ))}
             </div>
@@ -991,14 +1040,14 @@ const DriveGame: React.FC<DriveGameProps> = ({ t, onBack, language }) => {
         <>
           <ConfettiRain />
           <div className="absolute inset-0 z-30 flex flex-col items-center justify-center pointer-events-none px-4">
-            <div className="pop-in text-[8rem] sm:text-[11rem] leading-none drop-shadow-2xl">{celebration.dest}</div>
-            <div className="pop-in text-white font-bold text-5xl sm:text-7xl text-outline mt-2" style={{ animationDelay: '0.15s' }}>
+            <ItemArt name={artFor(celebration.dest) ?? 'house'} size="clamp(140px, 34vmin, 260px)" className="pop-in" />
+            <span className="paper-banner pop-in mt-3" style={{ '--c': '#ef5b45', fontSize: 'clamp(44px, 11vmin, 96px)', animationDelay: '0.15s' } as React.CSSProperties}>
               {t('hooray')}
-            </div>
+            </span>
             {celebration.bag.length > 0 && (
-              <div className="mt-4 max-w-xl flex flex-wrap justify-center gap-1 bg-white/80 rounded-3xl px-4 py-3 shadow-xl">
-                {celebration.bag.map((e, i) => (
-                  <span key={i} className="pop-in text-3xl sm:text-4xl" style={{ animationDelay: `${0.3 + i * 0.07}s` }}>{e}</span>
+              <div className="paper-card mt-5 max-w-xl flex flex-wrap justify-center gap-1 rounded-3xl px-4 py-3">
+                {celebration.bag.map((name, i) => (
+                  <ItemArt key={i} name={name} size="clamp(34px, 6vmin, 48px)" className="pop-in" style={{ animationDelay: `${0.3 + i * 0.07}s` }} />
                 ))}
               </div>
             )}

@@ -3,6 +3,7 @@ import { availableLanguages } from '../constants';
 import { playUIClick, playMenuClose } from '../services/audioService';
 import { hasVoice, isSpeechEnabled, onVoicesChanged, setSpeechEnabled } from '../services/speechService';
 import { trackSettingsChange } from '../services/analyticsService';
+import { GearIcon, PaperStar, SpeakerIcon } from './paper';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -14,10 +15,14 @@ export const HomeButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   <button
     onPointerDown={(e) => e.stopPropagation()}
     onClick={(e) => { e.stopPropagation(); onClick(); }}
-    className="toy-btn w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/95 flex items-center justify-center text-3xl sm:text-4xl"
+    className="soft-btn w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center"
     aria-label="Home"
   >
-    🏠
+    <svg viewBox="0 0 24 24" className="w-[52%] h-[52%]" strokeLinejoin="round" strokeLinecap="round">
+      <path d="M3.5 11 L12 3.8 L20.5 11" fill="none" stroke="#2d2440" strokeWidth="2.6" />
+      <path d="M6 9.6 V19.2 Q6 20.2 7 20.2 H17 Q18 20.2 18 19.2 V9.6 L12 4.6 Z" fill="#ef5b45" stroke="#2d2440" strokeWidth="2.2" />
+      <path d="M10 20.2 V15 Q10 14 11 14 H13 Q14 14 14 15 V20.2" fill="#f6b93b" stroke="#2d2440" strokeWidth="2" />
+    </svg>
   </button>
 );
 
@@ -176,9 +181,9 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         style={{ touchAction: 'pan-y' }}
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">⚙️ {t('Settings')}</h2>
+          <h2 className="text-2xl font-bold flex items-center gap-2"><GearIcon className="w-7 h-7" />{t('Settings')}</h2>
           <button onClick={close} className="w-11 h-11 rounded-full bg-slate-100 text-2xl text-slate-600 active:scale-90 transition-transform" aria-label="Close">
-            ✕
+            <svg viewBox="0 0 24 24" className="w-6 h-6 mx-auto" fill="none" stroke="#2d2440" strokeWidth="2.6" strokeLinecap="round"><path d="M6 6 L18 18 M18 6 L6 18" /></svg>
           </button>
         </div>
 
@@ -204,14 +209,14 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             className="w-full flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 active:scale-[0.98] transition-transform"
           >
             <span className="flex items-center gap-3 text-lg font-semibold">
-              <span className="text-2xl">🗣️</span>{t('speakWords')}
+              <SpeakerIcon className="w-7 h-7" />{t('speakWords')}
             </span>
             <span className={`w-14 h-8 rounded-full p-1 transition-colors ${speakOn ? 'bg-green-500' : 'bg-slate-300'}`}>
               <span className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${speakOn ? 'translate-x-6' : ''}`} />
             </span>
           </button>
           {speakOn && !voiceAvailable && (
-            <p className="text-xs text-slate-500 mt-2 px-1">🔇 {t('noVoice')}</p>
+            <p className="text-xs text-slate-500 mt-2 px-1">{t('noVoice')}</p>
           )}
         </section>
 
@@ -224,7 +229,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
                 onClick={() => { playUIClick(); onDifficultyChange(level); }}
                 className={`rounded-2xl py-3 flex flex-col items-center font-semibold transition-all active:scale-95 ${difficulty === level ? 'bg-amber-100 ring-4 ring-amber-400' : 'bg-slate-50 hover:bg-slate-100'}`}
               >
-                <span className="text-xl leading-none">{'⭐'.repeat(i + 1)}</span>
+                <span className="flex">{Array.from({ length: i + 1 }, (_, k) => <PaperStar key={k} filled className="w-6 h-6" />)}</span>
                 <span className="text-sm mt-1">{t(level)}</span>
               </button>
             ))}

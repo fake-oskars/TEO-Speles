@@ -6,6 +6,7 @@ import { nameClip } from '../speech/phrases';
 import { trackInteraction } from '../services/analyticsService';
 import type { Item } from '../types';
 import { Burst, HomeButton } from '../components/ui';
+import { ItemArt, PaperBubbles, SpeakerIcon, toneFor } from '../components/paper';
 
 const shuffle = <T,>(array: T[]): T[] => {
   const a = [...array];
@@ -15,13 +16,6 @@ const shuffle = <T,>(array: T[]): T[] => {
   }
   return a;
 };
-
-const BUBBLES = Array.from({ length: 10 }, (_, i) => ({
-  left: (i * 37) % 100,
-  size: 30 + ((i * 53) % 90),
-  duration: 9 + ((i * 7) % 8),
-  delay: -((i * 3) % 10),
-}));
 
 interface NameItGameProps {
   activeItems: Item[];
@@ -95,74 +89,60 @@ const NameItGame: React.FC<NameItGameProps> = ({ activeItems, t, onBack, languag
   }, [current, revealed, reveal, drawNext]);
 
   if (!current) return null;
-  const { emoji, color, textColor, name } = current;
+  const { name } = current;
+  const tone = toneFor(current);
   const pron = pronunciations[language]?.[name];
 
   return (
     <div
-      className={`relative w-full h-full flex flex-col items-center justify-center overflow-hidden select-none cursor-pointer transition-colors duration-500 ${color}`}
+      className="paper-bg relative w-full h-full flex flex-col items-center justify-center overflow-hidden select-none cursor-pointer"
+      style={{ '--bg': tone.paper } as React.CSSProperties}
       onPointerDown={handleTap}
     >
-      {/* Soft floating bubbles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {BUBBLES.map((b, i) => (
-          <span
-            key={i}
-            className="absolute rounded-full bg-white/25 floaty"
-            style={{
-              left: `${b.left}%`,
-              top: `${(i * 29) % 90}%`,
-              width: b.size,
-              height: b.size,
-              animationDuration: `${b.duration / 2}s`,
-              animationDelay: `${b.delay}s`,
-            }}
-          />
-        ))}
-      </div>
+      <PaperBubbles />
 
       <div className="absolute top-4 left-4 z-20">
         <HomeButton onClick={onBack} />
       </div>
 
       <div key={round} className={`relative flex flex-col items-center px-4 ${leaving ? 'pop-out' : 'pop-in'}`}>
+        {/* The picture sits in a big see-through paper bubble */}
         <div
-          className="rounded-full bg-white/50 flex items-center justify-center shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
-          style={{ width: 'clamp(200px, 58vmin, 560px)', height: 'clamp(200px, 58vmin, 560px)' }}
+          className="paper-bubble rounded-full flex items-center justify-center"
+          style={{ width: 'clamp(210px, 58vmin, 560px)', height: 'clamp(210px, 58vmin, 560px)' }}
         >
-          <span key={revealed ? 'said' : 'quiet'} className={`inline-block ${revealed ? 'wiggle' : 'bob'}`} style={{ fontSize: 'clamp(110px, 36vmin, 380px)', lineHeight: 1 }}>{emoji}</span>
+          <ItemArt
+            key={revealed ? 'said' : 'quiet'}
+            name={name}
+            size="72%"
+            className={revealed ? 'wiggle' : 'bob'}
+          />
         </div>
-        {revealed ? (
-          <div
-            className={`pop-in font-bold mt-4 sm:mt-6 text-center text-outline ${textColor}`}
-            style={{ fontSize: 'clamp(40px, 11vmin, 128px)', lineHeight: 1.05 }}
-          >
-            {t(name)}
-          </div>
-        ) : (
-          <div
-            className={`font-bold mt-4 sm:mt-6 text-center opacity-40 ${textColor}`}
-            style={{ fontSize: 'clamp(40px, 11vmin, 128px)', lineHeight: 1.05 }}
-          >
-            ?
-          </div>
-        )}
-        {revealed && pron && (
-          <div className={`mt-1 font-semibold opacity-60 text-center ${textColor}`} style={{ fontSize: 'clamp(16px, 4.5vmin, 44px)' }}>
-            [{pron}]
-          </div>
-        )}
+        <div className="mt-4 sm:mt-6 flex flex-col items-center" style={{ minHeight: 'clamp(56px, 13vmin, 150px)' }}>
+          {revealed ? (
+            <span className="paper-banner pop-in" style={{ '--c': tone.deep, fontSize: 'clamp(38px, 10vmin, 112px)' } as React.CSSProperties}>
+              {t(name)}
+            </span>
+          ) : (
+            <span className="paper-question" style={{ '--c': tone.deep } as React.CSSProperties}>?</span>
+          )}
+          {revealed && pron && (
+            <div className="mt-2 font-semibold text-center" style={{ color: '#2d2440', opacity: 0.55, fontSize: 'clamp(16px, 4.5vmin, 44px)' }}>
+              [{pron}]
+            </div>
+          )}
+        </div>
       </div>
 
       <button
         onPointerDown={(e) => { e.stopPropagation(); reveal(); }}
-        className="toy-btn absolute bottom-5 right-5 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/95 text-3xl sm:text-4xl flex items-center justify-center z-20"
+        className="soft-btn absolute bottom-5 right-5 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center z-20"
         aria-label="Say again"
       >
-        🔊
+        <SpeakerIcon className="w-[55%] h-[55%]" />
       </button>
 
-      {burst && <Burst key={burst.key} x={burst.x} y={burst.y} emoji={emoji} />}
+      {burst && <Burst key={burst.key} x={burst.x} y={burst.y} />}
     </div>
   );
 };

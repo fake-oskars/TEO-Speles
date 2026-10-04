@@ -402,3 +402,54 @@ export const playCrash = (): void => {
   noise.start(now);
   sweep(120, 40, 0.4, 'sine', 0.45);
 };
+
+// --- Football ---
+
+// Shaped noise, shared by the kick and the crowd
+const playNoise = (duration: number, volume: number, filterType: BiquadFilterType, freq: number, attack: number = 0.005): void => {
+  const context = getAudioContext();
+  if (!context) return;
+  if (context.state === 'suspended') context.resume();
+  const now = context.currentTime;
+  const length = Math.floor(context.sampleRate * duration);
+  const buffer = context.createBuffer(1, length, context.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+  const noise = context.createBufferSource();
+  noise.buffer = buffer;
+  const filter = context.createBiquadFilter();
+  filter.type = filterType;
+  filter.frequency.value = freq;
+  const gain = context.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(volume, now + attack);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  noise.connect(filter);
+  filter.connect(gain);
+  gain.connect(context.destination);
+  noise.start(now);
+};
+
+export const playKick = (): void => {
+  sweep(150, 50, 0.16, 'sine', 0.55);
+  playNoise(0.06, 0.25, 'lowpass', 1800);
+};
+
+// Referee whistle: a bright trill
+export const playWhistle = (): void => {
+  for (let i = 0; i < 6; i++) {
+    playTone(i % 2 === 0 ? 2350 : 2500, 0.07, 'sine', 0.12, i * 0.06);
+  }
+};
+
+// Crowd roar that swells and fades
+export const playCheer = (): void => {
+  playNoise(1.6, 0.22, 'bandpass', 1100, 0.25);
+  playNoise(1.4, 0.12, 'bandpass', 2400, 0.3);
+};
+
+// Ball hitting the goal post
+export const playPost = (): void => {
+  playTone(880, 0.35, 'triangle', 0.2);
+  playTone(1320, 0.25, 'sine', 0.08);
+};

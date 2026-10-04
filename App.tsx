@@ -21,108 +21,79 @@ import NameItGame from './games/NameItGame';
 import FindItGame from './games/FindItGame';
 import DriveGame from './games/DriveGame';
 import ColoringGame from './games/ColoringGame';
+import FootballGame from './games/FootballGame';
+import { PAL } from './components/art';
+import { GearIcon, ItemArt } from './components/paper';
 
 // The 3D game pulls in three.js — only download it when someone opens it
 const VroomGame = React.lazy(() => import('./VroomGame'));
 
-type GameMode = 'name-it' | 'find-it' | 'vroom' | 'drive' | 'coloring';
+type GameMode = 'name-it' | 'find-it' | 'vroom' | 'drive' | 'coloring' | 'football';
 
-const TITLE_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
-
-// --- Menu card illustrations ---
-
-const NameItArt: React.FC = () => {
-  const emojis = ['🐄', '🍎', '🚗', '🎈', '🦁', '🌻'];
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setI(n => (n + 1) % emojis.length), 1800);
-    return () => clearInterval(id);
-  }, [emojis.length]);
-  return (
-    <div className="relative flex items-center justify-center">
-      <div className="absolute rounded-full bg-white/30" style={{ width: '1.6em', height: '1.6em' }} />
-      <span key={i} className="relative inline-block" style={{ animation: 'fadeInScale 0.5s cubic-bezier(.34,1.56,.64,1)' }}>{emojis[i]}</span>
-    </div>
-  );
-};
-
-const FindItArt: React.FC = () => (
-  <div className="relative grid grid-cols-2 gap-[0.08em] text-[0.55em]">
-    {['🐶', '🍌', '🚂', '⭐'].map(e => (
-      <span key={e} className="bg-white/35 rounded-2xl p-[0.12em] leading-none text-center">{e}</span>
-    ))}
-    <span className="absolute left-1/2 top-1/2 text-[1.1em] orbit-animation" style={{ marginLeft: '-0.5em', marginTop: '-0.5em', '--orbit': '0.55em' } as React.CSSProperties}>🔍</span>
-  </div>
-);
-
-const VroomArt: React.FC = () => (
-  <div className="relative" style={{ width: '1.9em', height: '1.35em' }}>
-    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 70" fill="none">
-      <path d="M8 12 C8 52, 20 58, 38 58 C50 58, 56 56, 62 48 C68 40, 72 28, 74 18" stroke="white" strokeWidth="4" strokeLinecap="round" opacity="0.8" />
-      <rect x="82" y="48" width="7" height="7" rx="1" fill="white" opacity="0.6" />
-      <rect x="82" y="40" width="7" height="7" rx="1" fill="white" opacity="0.45" />
-      <rect x="75" y="48" width="7" height="7" rx="1" fill="white" opacity="0.45" />
-    </svg>
-    <span className="absolute vroom-jump-car text-[0.55em] leading-none">🏎️</span>
-  </div>
-);
-
-const DriveArt: React.FC = () => (
-  <div className="relative" style={{ width: '1.9em', height: '1.3em' }}>
-    <span className="absolute text-[0.35em] leading-none" style={{ left: '8%', top: '0%' }}>☀️</span>
-    <span className="absolute text-[0.42em] leading-none" style={{ right: '4%', top: '12%' }}>🌳</span>
-    <span className="absolute text-[0.3em] leading-none" style={{ right: '34%', top: '28%' }}>🍎</span>
-    <div className="absolute left-0 right-0 rounded-md bg-slate-600" style={{ bottom: '6%', height: '26%' }}>
-      <div
-        className="absolute left-0 right-0 top-1/2 h-[3px] -mt-[1.5px] road-dash"
-        style={{ backgroundImage: 'linear-gradient(90deg, #fde047 0 50%, transparent 50% 100%)', backgroundSize: '40px 3px' }}
-      />
-    </div>
-    <span className="absolute cruise text-[0.6em] leading-none" style={{ left: '14%', bottom: '14%' }}>🚙</span>
-  </div>
-);
-
-const ColoringArt: React.FC = () => {
-  const colors = ['#facc15', '#f472b6', '#22c55e', '#38bdf8', '#fb923c', '#a855f7'];
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setI(n => (n + 1) % colors.length), 1100);
-    return () => clearInterval(id);
-  }, [colors.length]);
-  return (
-    <div className="relative" style={{ width: '1.3em', height: '1.1em' }}>
-      <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full">
-        <path
-          d="M50 6 L62 36 L94 38 L69 58 L78 90 L50 72 L22 90 L31 58 L6 38 L38 36 Z"
-          fill={colors[i]}
-          stroke="#1c1917"
-          strokeWidth="5"
-          strokeLinejoin="round"
-          style={{ transition: 'fill 0.4s ease' }}
-        />
-      </svg>
-      <span className="absolute bob text-[0.5em] leading-none" style={{ right: '-22%', bottom: '-6%' }}>🖍️</span>
-    </div>
-  );
-};
+// Wordmark letters, each cut from a different colour of paper
+const TITLE_COLORS: [string, string][] = [
+  [PAL.tomato, PAL.tomatoShade], [PAL.sun, PAL.sunShade], [PAL.leaf, PAL.leafShade], [PAL.sea, PAL.seaShade],
+  [PAL.grape, PAL.grapeShade], [PAL.pink, PAL.pinkShade], [PAL.teal, PAL.tealShade],
+];
 
 interface CardDef {
   mode: GameMode;
   titleKey: string;
-  gradient: string;
-  Art: React.FC;
+  color: string;
+  shade: string;
+  image: string; // a scene from the game in the paper-collage house style, in public/assets/menu
   isNew?: boolean;
 }
 
 const CARDS: CardDef[] = [
-  { mode: 'name-it', titleKey: 'popItGameTitle', gradient: 'linear-gradient(160deg, #38bdf8 0%, #2563eb 100%)', Art: NameItArt },
-  { mode: 'find-it', titleKey: 'findItGameTitle', gradient: 'linear-gradient(160deg, #f472b6 0%, #e11d48 100%)', Art: FindItArt },
-  { mode: 'vroom', titleKey: 'vroomGameTitle', gradient: 'linear-gradient(160deg, #34d399 0%, #059669 100%)', Art: VroomArt },
-  { mode: 'drive', titleKey: 'driveGameTitle', gradient: 'linear-gradient(160deg, #fbbf24 0%, #f97316 100%)', Art: DriveArt, isNew: true },
-  { mode: 'coloring', titleKey: 'coloringGameTitle', gradient: 'linear-gradient(160deg, #c084fc 0%, #7c3aed 100%)', Art: ColoringArt, isNew: true },
+  { mode: 'name-it', titleKey: 'popItGameTitle', color: PAL.sea, shade: PAL.seaShade, image: '/assets/menu/kas.webp' },
+  { mode: 'find-it', titleKey: 'findItGameTitle', color: PAL.grape, shade: PAL.grapeShade, image: '/assets/menu/kur.webp' },
+  { mode: 'vroom', titleKey: 'vroomGameTitle', color: PAL.teal, shade: PAL.tealShade, image: '/assets/menu/brrum.webp' },
+  { mode: 'drive', titleKey: 'driveGameTitle', color: PAL.sun, shade: PAL.sunShade, image: '/assets/menu/braucam.webp', isNew: true },
+  { mode: 'coloring', titleKey: 'coloringGameTitle', color: PAL.pink, shade: PAL.pinkShade, image: '/assets/menu/krasosim.webp', isNew: true },
+  { mode: 'football', titleKey: 'footballGameTitle', color: PAL.leaf, shade: PAL.leafShade, image: '/assets/menu/futbols.webp', isNew: true },
 ];
 
 // --- Menu ---
+
+// Each picture sits a little crooked, as if taped on by hand
+const TILTS = [-1.4, 1, -0.6, 1.3, -1.1, 0.7];
+// Washi tape: soft stripes in house colours
+const TAPES = [PAL.sun, PAL.pink, PAL.sea, PAL.leaf, PAL.grape, PAL.tomato].map(
+  c => `repeating-linear-gradient(-45deg, ${c}cc 0 7px, ${c}88 7px 14px)`
+);
+
+// A string of paper flags across the top of the page
+const Bunting: React.FC = () => {
+  const colors = [PAL.tomato, PAL.sun, PAL.teal, PAL.pink, PAL.sea, PAL.leaf, PAL.grape];
+  const n = 18;
+  return (
+    <svg className="bunting absolute top-0 left-0 w-full pointer-events-none" viewBox="0 0 1000 70" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M-10 4 Q500 30 1010 4" fill="none" stroke="#b9a68a" strokeWidth="1.6" />
+      {Array.from({ length: n }, (_, i) => {
+        const x = (i + 0.5) * (1000 / n);
+        const y = 4 + 13 * (1 - Math.pow((x - 500) / 510, 2));
+        return (
+          <path
+            key={i}
+            className="bunting-flag"
+            d={`M${x - 18} ${y - 1} L${x + 18} ${y - 1} L${x} ${y + 30} Z`}
+            fill={colors[i % colors.length]}
+            style={{ animationDelay: `${-i * 0.37}s`, transformOrigin: `${x}px ${y}px` }}
+          />
+        );
+      })}
+    </svg>
+  );
+};
+
+// Cut-paper hills along the bottom of the page
+const PaperHills: React.FC = () => (
+  <svg className="absolute bottom-0 left-0 w-full pointer-events-none" style={{ height: '26%' }} viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true">
+    <path className="paper-cut" d="M0 120 C 160 40, 300 60, 450 110 S 780 150, 1000 70 L1000 200 L0 200 Z" fill="#e9dcc3" />
+    <path className="paper-cut" d="M0 170 C 200 110, 380 130, 560 160 S 860 170, 1000 130 L1000 200 L0 200 Z" fill="#e1d1b4" />
+  </svg>
+);
 
 const GameSelection: React.FC<{
   onSelect: (mode: GameMode) => void;
@@ -138,73 +109,56 @@ const GameSelection: React.FC<{
     setTimeout(() => onSelect(mode), 120);
   };
 
+  let letter = 0;
   return (
-    <div className="relative w-full h-full flex flex-col select-none overflow-hidden" style={{ background: 'linear-gradient(180deg, #7dd3fc 0%, #bae6fd 55%, #e0f2fe 100%)' }}>
-      {/* Sky decoration */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-10 -left-10 w-40 h-40 sm:w-56 sm:h-56 rounded-full bg-yellow-300 shadow-[0_0_80px_30px_rgba(253,224,71,0.5)]" />
-        {[
-          { top: '10%', size: 64, dur: 60, delay: -10 },
-          { top: '24%', size: 44, dur: 45, delay: -30 },
-          { top: '6%', size: 52, dur: 75, delay: -50 },
-        ].map((c, i) => (
-          <span key={i} className="absolute left-0 drift opacity-90" style={{ top: c.top, fontSize: c.size, animationDuration: `${c.dur}s`, animationDelay: `${c.delay}s` }}>☁️</span>
-        ))}
-        <svg className="absolute bottom-0 left-0 w-full h-[28%]" viewBox="0 0 1200 300" preserveAspectRatio="none">
-          <path d="M0 140 C 200 60, 380 60, 560 130 S 900 210, 1200 100 L1200 300 L0 300 Z" fill="#86efac" />
-          <path d="M0 210 C 250 150, 450 170, 700 220 S 1050 250, 1200 190 L1200 300 L0 300 Z" fill="#4ade80" />
-        </svg>
-      </div>
+    <div className="paper relative w-full h-full flex flex-col select-none overflow-hidden">
+      <PaperHills />
+      <Bunting />
 
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between px-4 sm:px-6 pt-3 sm:pt-5 shrink-0">
-        <h1 className="font-bold text-outline tracking-tight leading-none" style={{ fontSize: 'clamp(34px, 8vmin, 76px)' }}>
-          {Array.from(title).map((ch, i) => (
-            <span key={i} className="inline-block" style={{ color: ch === ' ' ? undefined : TITLE_COLORS[i % TITLE_COLORS.length], transform: `rotate(${(i % 2 ? 1 : -1) * 3}deg)` }}>
-              {ch === ' ' ? ' ' : ch}
-            </span>
-          ))}
+      <div className="relative z-10 flex items-center justify-between gap-3 px-5 sm:px-8 shrink-0" style={{ paddingTop: 'clamp(24px, 5vmin, 46px)' }}>
+        <h1 className="wordmark leading-none whitespace-nowrap" style={{ fontSize: 'clamp(30px, 8.5vmin, 84px)' }} aria-label={title}>
+          {Array.from(title).map((ch, i) => {
+            if (ch === ' ') return <span key={i} className="inline-block" style={{ width: '0.3em' }} />;
+            const [c] = TITLE_COLORS[letter++ % TITLE_COLORS.length];
+            return (
+              <span key={i} className="wordmark-letter inline-block" style={{ color: c, animationDelay: `${i * 0.12}s` }}>
+                {ch}
+              </span>
+            );
+          })}
         </h1>
-        <button
-          onClick={onOpenSettings}
-          className="toy-btn h-14 sm:h-16 px-4 rounded-2xl bg-white/95 flex items-center gap-2 text-3xl"
-          aria-label={t('Settings')}
-        >
-          <span>{flag}</span>
-          <span className="text-2xl">⚙️</span>
+        <button onClick={onOpenSettings} className="soft-btn pl-[0.3em] pr-[0.15em] rounded-full flex items-center gap-[0.12em] shrink-0" style={{ height: 'clamp(44px, 10vmin, 68px)', fontSize: 'clamp(44px, 10vmin, 68px)' }} aria-label={t('Settings')}>
+          <span className="leading-none" style={{ fontSize: '0.48em' }}>{flag}</span>
+          <GearIcon className="w-[46%] h-[46%]" />
         </button>
       </div>
 
-      {/* Game cards */}
-      <div className="relative z-10 flex-1 min-h-0 grid portrait:grid-cols-2 landscape:grid-cols-5 gap-3 sm:gap-5 p-4 sm:p-6 w-full max-w-6xl mx-auto">
-        {CARDS.map(({ mode, titleKey, gradient, Art, isNew }, i) => (
-          <button
-            key={mode}
-            onClick={() => handleSelection(mode)}
-            className={`toy-btn pop-in relative rounded-[28px] sm:rounded-[36px] flex flex-col items-center justify-center overflow-hidden min-h-0 focus:outline-none ${i === CARDS.length - 1 && CARDS.length % 2 === 1 ? 'portrait:col-span-2' : ''}`}
-            style={{ background: gradient, animationDelay: `${i * 80}ms` }}
-          >
-            <span className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-white/15" />
-            <span className="absolute -bottom-10 -left-6 w-24 h-24 rounded-full bg-white/10" />
-            {isNew && (
-              <span className="absolute top-2 right-2 sm:top-3 sm:right-3 text-2xl sm:text-3xl wiggle-loop">✨</span>
-            )}
-            <div className="flex-1 min-h-0 flex items-center justify-center" style={{ fontSize: 'clamp(48px, 14vmin, 130px)' }}>
-              <Art />
-            </div>
-            <h2 className="pb-3 sm:pb-5 font-bold text-white text-outline leading-none" style={{ fontSize: 'clamp(22px, 5.5vmin, 50px)' }}>
-              {t(titleKey)}
-            </h2>
-          </button>
-        ))}
+      {/* Game cards: one big column to scroll on phones, a grid that fits the screen elsewhere */}
+      <div className="menu-scroll relative z-10 flex-1 min-h-0">
+        <div className="menu-grid">
+          {CARDS.map(({ mode, titleKey, color, shade, image, isNew }, i) => (
+            <button
+              key={mode}
+              onClick={() => handleSelection(mode)}
+              className="game-card"
+              style={{ '--c': color, '--s': shade, '--tilt': `${TILTS[i % TILTS.length]}deg`, '--tape': TAPES[i % TAPES.length], animationDelay: `${120 + i * 90}ms` } as React.CSSProperties}
+            >
+              <img className="game-card-scene" src={image} alt="" draggable={false} />
+              <span className="game-card-tape" />
+              <span className="game-card-title">{t(titleKey)}</span>
+              {isNew && <span className="game-card-new">{t('newBadge')}</span>}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
 };
 
 const Loading: React.FC = () => (
-  <div className="w-full h-full flex items-center justify-center bg-sky-200">
-    <span className="text-8xl bob">🏎️</span>
+  <div className="paper-bg w-full h-full flex items-center justify-center">
+    <ItemArt name="Race Car" size="clamp(120px, 26vmin, 220px)" className="bob" />
   </div>
 );
 
@@ -318,6 +272,8 @@ const App: React.FC = () => {
         return <DriveGame t={t} onBack={handleGoBack} language={language} />;
       case 'coloring':
         return <ColoringGame t={t} onBack={handleGoBack} language={language} />;
+      case 'football':
+        return <FootballGame t={t} onBack={handleGoBack} language={language} />;
       default:
         return <GameSelection onSelect={handleSelectGame} onOpenSettings={openSettings} t={t} language={language} />;
     }
@@ -335,10 +291,10 @@ const App: React.FC = () => {
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); openSettings(); }}
-          className="toy-btn absolute top-4 right-4 z-50 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/95 flex items-center justify-center text-3xl"
+          className="soft-btn absolute top-4 right-4 z-50 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center"
           aria-label={t('Settings')}
         >
-          ⚙️
+          <GearIcon className="w-[52%] h-[52%]" />
         </button>
       )}
 

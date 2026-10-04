@@ -42,7 +42,8 @@ export const trackScreenView = (screenName: string) => {
     'find-it': 'Atrodi',
     'vroom': 'Brrūm',
     'drive': 'Braucam',
-    'coloring': 'Krāsosim'
+    'coloring': 'Krāsosim',
+    'football': 'Futbols'
   };
   
   pushAnalytics('skats', {
@@ -54,12 +55,12 @@ export const trackScreenView = (screenName: string) => {
 let gameStartTime: number | null = null;
 let currentGameMode: string | null = null;
 
-export const trackGameStart = (gameMode: 'name-it' | 'find-it' | 'vroom' | 'drive' | 'coloring', difficulty?: string, itemCount?: number) => {
+export const trackGameStart = (gameMode: 'name-it' | 'find-it' | 'vroom' | 'drive' | 'coloring' | 'football', difficulty?: string, itemCount?: number) => {
   gameStartTime = Date.now();
   currentGameMode = gameMode;
 
   // Translate to Latvian game names
-  const gameNames: Record<string, string> = { 'name-it': 'Kas tas ir', 'find-it': 'Atrodi', 'vroom': 'Brrūm', 'drive': 'Braucam', 'coloring': 'Krāsosim' };
+  const gameNames: Record<string, string> = { 'name-it': 'Kas tas ir', 'find-it': 'Atrodi', 'vroom': 'Brrūm', 'drive': 'Braucam', 'coloring': 'Krāsosim', 'football': 'Futbols' };
   const gameName = gameNames[gameMode] || gameMode;
   const difficultyMap: Record<string, string> = {
     'easy': 'Viegli',
@@ -80,7 +81,7 @@ export const trackGameEnd = (stats?: { correct: number; total: number }) => {
   
   const sessionDuration = Math.round((Date.now() - gameStartTime) / 1000); // in seconds
   const accuracy = stats && stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-  const gameNames: Record<string, string> = { 'name-it': 'Kas tas ir', 'find-it': 'Atrodi', 'vroom': 'Brrūm', 'drive': 'Braucam', 'coloring': 'Krāsosim' };
+  const gameNames: Record<string, string> = { 'name-it': 'Kas tas ir', 'find-it': 'Atrodi', 'vroom': 'Brrūm', 'drive': 'Braucam', 'coloring': 'Krāsosim', 'football': 'Futbols' };
   const gameName = gameNames[currentGameMode] || currentGameMode;
 
   pushAnalytics('beigas', {

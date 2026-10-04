@@ -5,6 +5,8 @@ import { findClip, findText, nameClip, praiseClip, PRAISE_KEYS } from '../speech
 import { trackAnswer } from '../services/analyticsService';
 import type { Item } from '../types';
 import { Burst, ConfettiRain, HomeButton, RoundButton, useElementSize } from '../components/ui';
+import { ItemArt, PaperStar, SpeakerIcon, toneFor } from '../components/paper';
+import { PAL } from '../components/art';
 
 const STARS_PER_TROPHY = 5;
 
@@ -167,20 +169,20 @@ const FindItGame: React.FC<FindItGameProps> = ({ activeItems, t, onBack, emojiCo
       <button
         key={`${round}-${item.name}`}
         onPointerDown={(e) => handlePick(item, e)}
-        className={`flex items-center justify-center rounded-[28px] transition-all duration-300 active:scale-90
-          ${isScattered ? 'absolute' : 'relative w-full h-full bg-white/70 shadow-[0_8px_0_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.08)]'}
-          ${won ? `z-10 bg-white ring-8 ring-yellow-300 ${isScattered ? 'scale-125' : 'scale-105'}` : ''}
+        className={`flex items-center justify-center rounded-[22px] transition-all duration-300 active:scale-90
+          ${isScattered ? 'absolute' : 'paper-card relative w-full h-full'}
+          ${won ? `z-10 found ${isScattered ? 'scale-125' : 'scale-105'}` : ''}
           ${dimmed ? 'opacity-30 scale-90' : ''}
-          ${isWrong ? 'animate-shake bg-red-200/80' : ''}`}
+          ${isWrong ? 'animate-shake wrong' : ''}`}
         style={style}
       >
         <span style={{ transform: rotate ? `rotate(${rotate}deg)` : undefined, display: 'inline-block' }}>
-          <span
-            className={`inline-block pop-in ${showHint && isTarget ? 'wiggle-loop' : ''}`}
-            style={{ fontSize: emojiSize, lineHeight: 1, animationDelay: showHint && isTarget ? undefined : `${index * 45}ms` }}
-          >
-            {item.emoji}
-          </span>
+          <ItemArt
+            name={item.name}
+            size={emojiSize}
+            className={`block pop-in ${showHint && isTarget ? 'wiggle-loop' : ''}`}
+            style={{ animationDelay: showHint && isTarget ? undefined : `${index * 45}ms` }}
+          />
         </span>
       </button>
     );
@@ -215,37 +217,37 @@ const FindItGame: React.FC<FindItGameProps> = ({ activeItems, t, onBack, emojiCo
             alignContent: 'center',
           }}
         >
-          {options.map((item, i) => renderOption(item, i, {}, Math.min(cell * 0.62, 200)))}
+          {options.map((item, i) => renderOption(item, i, {}, Math.min(cell * 0.74, 240)))}
         </div>
       );
     }
   }
 
+  const tone = toneFor(target);
+
   return (
     <div
-      className={`relative w-full h-full flex flex-col select-none overflow-hidden transition-colors duration-500 ${isScattered ? 'bg-sky-100' : target.color}`}
+      className="paper-bg relative w-full h-full flex flex-col select-none overflow-hidden"
+      style={{ '--bg': isScattered ? '#f4ead8' : tone.paper } as React.CSSProperties}
     >
       {/* Header */}
       <div className="shrink-0 flex items-start justify-between gap-2 px-4 pt-4">
         <HomeButton onClick={handleBack} />
-        <div className="flex gap-1 sm:gap-2 bg-white/60 rounded-full px-3 py-2 mt-1">
+        <div className="soft-btn flex gap-1 sm:gap-1.5 rounded-full px-3 py-2 mt-1">
           {Array.from({ length: STARS_PER_TROPHY }).map((_, i) => (
-            <span key={i} className={`text-2xl sm:text-3xl leading-none ${i < stars ? 'star-in' : 'opacity-25 grayscale'}`}>⭐</span>
+            <PaperStar key={i} filled={i < stars} className={`w-7 h-7 sm:w-9 sm:h-9 ${i < stars ? 'star-in' : ''}`} />
           ))}
         </div>
         <div className="w-14 sm:w-16" /> {/* space for the settings button */}
       </div>
 
-      <div className="shrink-0 flex items-center justify-center gap-3 px-4 mt-2 mb-2">
-        <h2
-          key={round}
-          className={`pop-in text-center font-bold text-outline ${isScattered ? 'text-sky-900' : target.textColor}`}
-          style={{ fontSize: 'clamp(30px, 7vmin, 72px)', lineHeight: 1.1 }}
-        >
+      {/* The question on a strip of paper */}
+      <div className="shrink-0 flex items-center justify-center gap-3 px-4 mt-3 mb-3">
+        <span key={round} className="paper-banner pop-in" style={{ '--c': tone.deep, fontSize: 'clamp(26px, 6.5vmin, 64px)' } as React.CSSProperties}>
           {findText(language, target.name, t)}
-        </h2>
-        <RoundButton onClick={() => askFor(target)} label="Say again" className="shrink-0 w-12 h-12 sm:w-14 sm:h-14 text-2xl sm:text-3xl rounded-full">
-          🔊
+        </span>
+        <RoundButton onClick={() => askFor(target)} label="Say again" className="soft-btn shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full">
+          <SpeakerIcon className="w-[58%] h-[58%]" />
         </RoundButton>
       </div>
 
@@ -254,16 +256,15 @@ const FindItGame: React.FC<FindItGameProps> = ({ activeItems, t, onBack, emojiCo
         {content}
       </div>
 
-      {burst && <Burst key={burst.key} x={burst.x} y={burst.y} emoji="⭐" />}
+      {burst && <Burst key={burst.key} x={burst.x} y={burst.y} />}
 
       {trophy && (
         <>
           <ConfettiRain />
-          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/20 pointer-events-none">
-            <div className="pop-in text-[9rem] sm:text-[12rem] leading-none drop-shadow-2xl">🏆</div>
-            <div className="pop-in mt-2 text-white font-bold text-5xl sm:text-7xl text-outline" style={{ animationDelay: '0.2s' }}>
+          <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none" style={{ background: 'rgba(45,36,64,0.15)' }}>
+            <span className="paper-banner pop-in" style={{ '--c': PAL.sun, fontSize: 'clamp(56px, 15vmin, 140px)' } as React.CSSProperties}>
               {t('amazing')}
-            </div>
+            </span>
           </div>
         </>
       )}
