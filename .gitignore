@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 ANALYTICS_EVENTS.md
 ANALYTICS_SETUP.md
+
+# Cloudflare Wrangler local state
+.wrangler
+
+# Full-size AI image originals (large; ready-to-use exports are committed)
+marketing/**/*-full.png

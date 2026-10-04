@@ -1,0 +1,6 @@
+# Vite's hashed bundles and the pre-generated voice clips (requested with ?v=<hash>) never change
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/audio/*
+  Cache-Control: public, max-age=31536000, immutable
